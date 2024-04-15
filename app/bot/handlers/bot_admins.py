@@ -28,10 +28,9 @@ from ...bot.types import (
     ResultData,
     StopUploadingData,
 )
-from ...database.models import Quiz
 from ...database.utils.quiz_results_ import find_user_results, get_result
 from ...database.utils.quizzes import delete_quiz, find_quiz, get_quiz_info
-from ...quiz_parser import from_file, from_text, get_last_modified
+from ...quiz_parser import from_file, from_text
 from ...settings import RESULT_COUNT
 from ...utils.quiz_utils import (
     fmt_result,
@@ -39,7 +38,7 @@ from ...utils.quiz_utils import (
     normalize_file_name,
     parse_file_path,
     quiz_as_text,
-    show_files,
+    scan_files,
 )
 from ..keyboards.keyboard import (
     quiz_tool_keyboard,
@@ -69,20 +68,7 @@ async def files_command(
     context: BotContext,
     session: AsyncSession,
 ):
-    files: dict[str, tuple] = {}
-    for i, path in enumerate(context.settings.quiz_folder.glob("*.py")):
-        quiz_id, name = parse_file_path(path)
-        quiz: Quiz | None = None
-        if quiz_id is not None:
-            if quiz_info := await get_quiz_info(quiz_id, session):
-                quiz, _ = quiz_info
-        if not quiz:
-            quiz = await find_quiz(name, session)
-
-        if (not quiz) or (get_last_modified(path) > quiz.last_modified):
-            files[str(i)] = name, path.name, quiz_id, bool(quiz)
-
-    logger.debug(files)
+    files = await scan_files(context.settings.quiz_folder, session)
     await state.set_data(dict(files=files))
     await files_page.show(message, 0, False, files=files)
 
@@ -131,8 +117,11 @@ async def handle_file_data(
             if quiz_id is not None:
                 new_quiz.id = quiz_id
             session.add(new_quiz)
-            await query.answer("Successful!")
-            await show_files(message, state, context, session, edit=True)
+            await query.answer("Successs!")
+
+            files = await scan_files(context.settings.quiz_folder, session)
+            await state.set_data(dict(files=files))
+            await files_page.show(message, 0, True, files=files)
         except Exception as e:
             await message.answer(f'{e!r}: "{e}"')
 

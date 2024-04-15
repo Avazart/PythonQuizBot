@@ -42,7 +42,7 @@ GROUP_COMMANDS: Final[list] = [
 
 USE_SQLITE: Final[bool] = True
 CACHE_SIZE: Final[int] = 1000
-FILE_COUNT: Final[int] = 9 * 2
+FILE_COUNT: Final[int] = 9
 QUIZ_COUNT: Final[int] = 9
 USER_COUNT: Final[int] = 9 * 3
 RESULT_COUNT: Final[int] = 5

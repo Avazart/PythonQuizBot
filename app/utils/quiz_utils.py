@@ -1,5 +1,6 @@
 import logging
 import re
+import textwrap
 from pathlib import Path
 
 from aiogram import Bot, html
@@ -10,13 +11,11 @@ from aiogram.utils.deep_linking import create_start_link
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..bot.keyboards.keyboard import question_keyboard
-from ..bot.pages import files_page
-from ..bot.types import BotContext, OptionData
+from ..bot.types import OptionData
 from ..database.models import Quiz, QuizResult
 from ..database.utils.questions import find_question
 from ..database.utils.quizzes import find_quiz, get_quiz_info
 from ..quiz_parser import Question, get_last_modified
-from ..settings import FILE_COUNT
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +79,12 @@ def quiz_as_text(quiz: Quiz) -> str:
     for n, question in enumerate(quiz.questions, 1):
         lines.append(f"# # {n:=<75}")
         lines.append("\n")
-        lines.append(f"# ? {question.text}")
+        lines.extend(
+            [
+                "# ? " + line
+                for line in textwrap.wrap(question.text, width=79 - 4)
+            ]
+        )
         lines.append("\n")
 
         if question.code:
@@ -154,7 +158,7 @@ def fmt_result(result: QuizResult) -> str:
                     correct_answer = False
                 else:
                     ch = "⚪"
-            tmp.append(f"{ch} {html.code(option.text)}")
+            tmp.append(f"{ch} {html.code(html.unparse(option.text))}")
 
         if correct_answer:
             correct_count += 1
@@ -185,8 +189,6 @@ async def show_question_in_group(
         await message.answer("Question not found!")
         return
 
-    logger.debug(f"{q.id=} {q.n=} {q.text=}")
-
     correct_options = {opt.n for opt in q.options if opt.correct}
     multiple_answers = len(correct_options) != 1
     option_texts = [opt.text for opt in sorted(q.options, key=lambda o: o.n)]
@@ -194,9 +196,10 @@ async def show_question_in_group(
     link_line = html.link("Go to answer", link)
 
     if q.code or multiple_answers:
-        logger.debug("TEXT MESSAGE")
         lines = [fmt_question(q, quiz_id)]
-        lines.extend("⚪ " + html.code(text) for text in option_texts)
+        lines.extend(
+            "⚪ " + html.code(html.unparse(text)) for text in option_texts
+        )
         lines.append(link_line)
         await message.answer(
             "\n".join(lines),
@@ -204,7 +207,6 @@ async def show_question_in_group(
             parse_mode=ParseMode.HTML,
         )
     else:
-        logger.debug("PollType.QUIZ")
         correct_option_id = next(iter(correct_options)) - 1
         await message.answer_poll(
             question=f"{quiz_id}.{q.n}. {q.text}",
@@ -214,28 +216,13 @@ async def show_question_in_group(
             allows_multiple_answers=multiple_answers,
             correct_option_id=correct_option_id,
             disable_notification=True,
-            # explanation=q.explanation,
-            # explanation_parse_mode=ParseMode.HTML,
         )
 
 
-async def show_files(
-    message: Message,
-    state: FSMContext,
-    context: BotContext,
-    session: AsyncSession,
-    edit: bool,
-):
+async def scan_files(folder: Path, session: AsyncSession) -> dict[str, tuple]:
     files: dict[str, tuple] = {}
-    count = 0
-    for i, path in enumerate(context.settings.quiz_folder.glob("*.py")):
-        if m := re.match(r"^(\d+)\.\s*(.*)", path.stem):
-            quiz_id = int(m.group(1))
-            name = m.group(2)
-        else:
-            quiz_id = None
-            name = path.stem
-
+    for i, path in enumerate(folder.glob("*.py")):
+        quiz_id, name = parse_file_path(path)
         quiz: Quiz | None = None
         if quiz_id is not None:
             if quiz_info := await get_quiz_info(quiz_id, session):
@@ -245,9 +232,4 @@ async def show_files(
 
         if (not quiz) or (get_last_modified(path) > quiz.last_modified):
             files[str(i)] = name, path.name, quiz_id, bool(quiz)
-            count += 1
-            if count > FILE_COUNT:
-                break
-
-    await state.set_data(dict(files=files))
-    await files_page.show(message, 0, edit, files=files)
+    return files

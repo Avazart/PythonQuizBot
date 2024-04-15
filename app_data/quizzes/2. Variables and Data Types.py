@@ -1,6 +1,8 @@
 # # 1==========================================================================
 
-# ? What is the data type of <code>print(type(0xFF))</code>
+# ? What is the data type of
+
+print(type(0xFF))
 
 # - number
 # - hexint
@@ -162,8 +164,9 @@ print(x) # it should print 20
 
 # # 11=========================================================================
 
-# ? In Python 3, what is the output of <code>type(range(5))</code>.
-# ? (What data type it will return).
+# ? In Python 3, what is the output of code (What data type it will return).
+
+print(type(range(5)))
 
 # - int
 # - list

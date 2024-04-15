@@ -17,12 +17,11 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm.exc import LoaderStrategyException
 
-from app.bot.pages import PageId, PageItemData
-
 from .bot.dumpable_memory_storage import DumpableMemoryStorage
 from .bot.filters.filers import BotAdminFilter
 from .bot.handlers import bot_admins, group_users, users_in_private
 from .bot.middlewares.database_middlewares import DatabaseMiddleware
+from .bot.pages import PageId, PageItemData
 from .bot.scenes.quiz_scene import QuizScene
 from .bot.types import BotContext
 from .database.base import Base
