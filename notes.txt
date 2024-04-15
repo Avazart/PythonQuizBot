@@ -10,10 +10,3 @@ alembic init -t async migrations
 alembic upgrade head
 alembic revision --message "create tables"  --autogenerate
 
-
-TODO:
-     time problem
-     1. Files
-     2. ESCAPE CODE and FORMATING < >
-     3. PAGGINATION
-     4. HINT & EXPLANATION

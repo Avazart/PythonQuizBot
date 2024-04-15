@@ -164,3 +164,13 @@ def from_file(file_path: Path, source: str, name: str) -> Quiz:
             last_modified=last_modified,
             questions=questions,
         )
+
+
+def from_text(text: str, source: str, name: str) -> Quiz:
+    questions = list(QuizParser(text.split("\n")))
+    return Quiz(
+        source=source,
+        name=name,
+        last_modified=datetime.now(),
+        questions=questions,
+    )

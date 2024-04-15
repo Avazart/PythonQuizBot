@@ -7,7 +7,6 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
 )
 
-from ...notion_utils.utils import parse_page_id
 from ...quiz_parser import Question, Quiz
 from ...settings import Icon
 from ...utils.aux_utils import adjust
@@ -17,12 +16,12 @@ from ..types import (
     BackData,
     CloseData,
     ExitQuizData,
-    FinishUploadingData,
     MoreResultsData,
     NextQuestionData,
     OptionData,
     QuizData,
     ResultData,
+    StopUploadingData,
 )
 
 logger = logging.getLogger(__name__)
@@ -90,8 +89,8 @@ def question_keyboard(
 def quiz_tool_keyboard(quiz: Quiz) -> InlineKeyboardMarkup:
     buttons = [
         InlineKeyboardButton(
-            text=f"{Icon.UPDATE} Update",
-            callback_data=QuizData(action=Action.UPDATE, id=quiz.id).pack(),
+            text=f"{Icon.DOWN} Download",
+            callback_data=QuizData(action=Action.DOWNLOAD, id=quiz.id).pack(),
         ),
         InlineKeyboardButton(
             text=f"{Icon.DELETE} Delete",
@@ -101,34 +100,11 @@ def quiz_tool_keyboard(quiz: Quiz) -> InlineKeyboardMarkup:
             text="📌 Rename",
             callback_data=QuizData(action=Action.RENAME, id=quiz.id).pack(),
         ),
-    ]
-    if page_id := parse_page_id(quiz.source):
-        buttons.insert(
-            0, InlineKeyboardButton(text=f"⬆ {page_id}", url=quiz.source)
-        )
-        buttons.append(
-            InlineKeyboardButton(
-                text=f"{Icon.DOWN} Download",
-                callback_data=QuizData(
-                    action=Action.DOWNLOAD, id=quiz.id
-                ).pack(),
-            )
-        )
-    else:
-        buttons.append(
-            InlineKeyboardButton(
-                text=f"{Icon.UP} Upload",
-                callback_data=QuizData(
-                    action=Action.UPLOAD, id=quiz.id
-                ).pack(),
-            )
-        )
-    buttons.append(
         InlineKeyboardButton(
             text=f"{Icon.LEFT} Back",
             callback_data=BackData().pack(),
-        )
-    )
+        ),
+    ]
     return InlineKeyboardMarkup(inline_keyboard=adjust(buttons))
 
 
@@ -151,13 +127,13 @@ def result_keyboard(user_id: int, result_id: int, next_offset: int | None):
     return InlineKeyboardMarkup(inline_keyboard=[buttons])
 
 
-def finish_uploading_keyboard():
+def stop_uploading_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=f"{Icon.CLOSE} Finish uploading",
-                    callback_data=FinishUploadingData().pack(),
+                    text=f"{Icon.CLOSE} Stop files uploading",
+                    callback_data=StopUploadingData().pack(),
                 ),
             ]
         ]

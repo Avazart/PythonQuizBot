@@ -23,7 +23,7 @@ class BotContext:
 class Form(StatesGroup):
     QUIZ = State()
     SINGLE_QUESTION = State()
-    ADD_SOURCE = State()
+    UPLOAD = State()
     RENAME_QUIZ = State()
 
 
@@ -37,8 +37,6 @@ class LocaleData(CallbackData, prefix="locale"):
 @enum.unique
 class Action(enum.StrEnum):
     DELETE = enum.auto()
-    UPDATE = enum.auto()
-    UPLOAD = enum.auto()
     DOWNLOAD = enum.auto()
     RENAME = enum.auto()
 
@@ -86,7 +84,7 @@ class UserData(CallbackData, prefix="user"):
     id: int
 
 
-class FinishUploadingData(CallbackData, prefix="finish"):
+class StopUploadingData(CallbackData, prefix="finish"):
     pass
 
 

@@ -7,23 +7,15 @@ from aiogram.enums import ParseMode, PollType
 from aiogram.fsm.context import FSMContext
 from aiogram.types import LinkPreviewOptions, Message
 from aiogram.utils.deep_linking import create_start_link
-from notion_client import Client
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..bot.keyboards.keyboard import (
-    question_keyboard,
-)
+from ..bot.keyboards.keyboard import question_keyboard
 from ..bot.pages import files_page
 from ..bot.types import BotContext, OptionData
 from ..database.models import Quiz, QuizResult
 from ..database.utils.questions import find_question
 from ..database.utils.quizzes import find_quiz, get_quiz_info
-from ..notion_utils.utils import (
-    export_to_notion,
-    import_from_notion,
-    parse_page_id,
-)
-from ..quiz_parser import Question, from_file, get_last_modified
+from ..quiz_parser import Question, get_last_modified
 from ..settings import FILE_COUNT
 
 logger = logging.getLogger(__name__)
@@ -69,64 +61,42 @@ def make_quiz_info_text(quiz: Quiz, count: int) -> str:
     return f"{quiz.name} ({count}) [{quiz.last_modified:%H:%M %d.%m.%y}]"
 
 
-def load_quiz(source: str, context: BotContext) -> Quiz:
-    if page_id := parse_page_id(source):
-        token = context.settings.notion_token.get_secret_value()
-        client = Client(auth=token)
-        quiz = import_from_notion(page_id, source, client)
-    else:
-        path = context.settings.quiz_folder / source
-        quiz = from_file(path, source, path.stem)
-    return quiz
-
-
-def download_quiz(source: str, context: BotContext) -> Quiz | None:
-    if page_id := parse_page_id(source):
-        token = context.settings.notion_token.get_secret_value()
-        client = Client(auth=token)
-        quiz = import_from_notion(page_id, source, client)
-        return quiz
-    return None
-
-
-def upload_quiz(source: str, context: BotContext) -> str:
-    token = context.settings.notion_token.get_secret_value()
-    client = Client(auth=token)
-    file_path = context.settings.quiz_folder / source
-    parent_id = context.settings.notion_parent_pade_id
-    page_url = export_to_notion(file_path, parent_id, client)
-    return page_url
-
-
 def normalize_file_name(text: str) -> str:
     return re.sub(r'[/\\:*?"<>|]', "_", text)
 
 
-def generate_file_path(name: str, folder: Path) -> Path:
-    name = normalize_file_name(name).removesuffix(".py")
-    n = 1
-    while True:
-        file_name = f"{name} ({n})" if n > 1 else name
-        logger.debug(file_name)
-        file_path = (folder / file_name).with_suffix(".py")
-        if not file_path.exists():
-            return file_path
-        n += 1
-        logger.debug((file_path, n))
+def parse_file_path(path: Path) -> tuple[int | None, str]:
+    if m := re.match(r"^(\d+)\.\s*(.*)", path.stem):
+        quiz_id = int(m.group(1))
+        name = m.group(2)
+    else:
+        quiz_id = None
+        name = path.stem
+    return quiz_id, name
 
 
-def save_quiz(file_path: Path, quiz: Quiz):
-    with file_path.open("w", encoding="utf-8") as file:
-        for n, question in enumerate(quiz.questions, 1):
-            print(f"# # {n:=<75}", end="\n\n", file=file)
-            print(f"# ? {question.text}", end="\n\n", file=file)
-            if question.code:
-                print(question.code, end="\n\n", file=file)
+def quiz_as_text(quiz: Quiz) -> str:
+    lines = []
+    for n, question in enumerate(quiz.questions, 1):
+        lines.append(f"# # {n:=<75}")
+        lines.append("\n")
+        lines.append(f"# ? {question.text}")
+        lines.append("\n")
 
-            for option in question.options:
-                ch = "+" if option.correct else "-"
-                print(f"# {ch} {option.text}", file=file)
-            print(end="\n\n", file=file)
+        if question.code:
+            lines.append(f"{question.code}")
+            lines.append("\n")
+
+        for option in question.options:
+            ch = "+" if option.correct else "-"
+            lines.append(f"# {ch} {option.text}")
+
+        if question.link:
+            lines.append("\n")
+            lines.append(f"# > {question.link}")
+
+        lines.append("\n")
+    return "\n".join(lines)
 
 
 async def check_option(

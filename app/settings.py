@@ -12,12 +12,12 @@ PRIVATE_COMMANDS: Final[list] = [
         description="Start working with the bot",
     ),
     BotCommand(
-        command="/menu",
-        description="Open the menu",
-    ),
-    BotCommand(
         command="/files",
         description="Show list of local files (only for bot admins)",
+    ),
+    BotCommand(
+        command="/upload",
+        description="Activate uploading quiz files (only for bot admins)",
     ),
     BotCommand(
         command="/manage_quizzes",
