@@ -1,0 +1,19 @@
+DATABASE_URL=postgresql+asyncpg://postgres:pass@localhost:5432/postgres
+DATABASE_URL=sqlite+aiosqlite:///app_data/database.sqlite
+
+1. create_venv_and_install_libs.bat
+2. pre-commit install
+3. Make .env.dev
+4. alembic_upgrade_head.bat
+
+alembic init -t async migrations
+alembic upgrade head
+alembic revision --message "create tables"  --autogenerate
+
+
+TODO:
+     time problem
+     1. Files
+     2. ESCAPE CODE and FORMATING < >
+     3. PAGGINATION
+     4. HINT & EXPLANATION
