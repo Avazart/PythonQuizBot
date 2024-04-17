@@ -91,6 +91,11 @@ async def handle_apply(
                 ch = "☑" if option.correct else "⚪"
 
             lines.append(f"{ch} {html.code(option.text)}")
+
+        if q.explanation:
+            lines.append("")
+            lines.append(q.explanation)
+
         await message.edit_reply_markup(reply_markup=None)
         await state.clear()
         await message.answer(

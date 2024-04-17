@@ -3,7 +3,7 @@ from typing import NamedTuple
 
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.functions import count
 
@@ -22,18 +22,38 @@ class QuizInfo(NamedTuple):
 
 async def get_quizzes_info(
     offset: int,
-    limit: int,
+    limit: int | None,
     s: AsyncSession,
 ) -> list[QuizInfo]:
-    r = await s.execute(
+    stmt = (
         select(Quiz, count(Question.id))
         .join(Question, Question.quiz_id == Quiz.id)
         .group_by(Quiz.id)
         .order_by(Quiz.id)
         .offset(offset)
-        .limit(limit)
     )
+    if limit:
+        stmt = stmt.limit(limit)
+
+    r = await s.execute(stmt)
     return [QuizInfo(*r) for r in r.all()]
+
+
+async def get_quizzes(
+    offset: int,
+    limit: int | None,
+    s: AsyncSession,
+) -> list[Quiz]:
+    stmt = (
+        select(Quiz)
+        .options(selectinload(Quiz.questions).selectinload(Question.options))
+        .order_by(Quiz.id)
+        .offset(offset)
+    )
+    if limit:
+        stmt = stmt.limit(limit)
+    r = await s.scalars(stmt)
+    return r.all()  # type: ignore
 
 
 async def get_quiz_info(

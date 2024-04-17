@@ -27,15 +27,18 @@ class QuizParserException(Exception):
 
 class LineType(enum.StrEnum):
     EMPTY = ""
+    COMMENT = "#"
     TEXT = "?"
     CODE = "code"
     CORRECT = "+"
     WRONG = "-"
-    COMMENT = "#"
+    EXPLANATION = "!"
+    HINT = "*"
     LINK = ">"
+    CONTINUE = "/"
 
 
-PATTERN = re.compile(r"^#\s*([-?+#>])\s+(.*)$")
+PATTERN = re.compile(r"^#\s*([-?+#>!*/])\s+(.*)$")
 
 
 @dataclass
@@ -73,10 +76,14 @@ class QuizParser:
         text = self._read_question_text()
         code = self._read_code()
         options = self._read_options()
+        explanation = self._read_explanation()
+        hint = self._read_hint()
         link = self._read_link()
         q = Question(
             text=text,
             code=code,
+            explanation=explanation,
+            hint=hint,
             link=link,
             options=options,
             n=self._qustion_n,
@@ -93,6 +100,11 @@ class QuizParser:
                     continue
                 case Line(LineType.TEXT, text):
                     lines.append(text)
+                case Line(LineType.CONTINUE, text):
+                    if lines:
+                        lines[-1] += " " + text
+                    else:
+                        break
                 case _:
                     return "\n".join(lines)
         raise StopIteration()
@@ -106,9 +118,9 @@ class QuizParser:
                 case Line(LineType.EMPTY, text) | Line(LineType.CODE, text):
                     lines.append(text)
                 case Line(LineType.WRONG) | Line(LineType.CORRECT):
-                    return "\n".join(lines)
+                    return "\n".join(lines).rstrip()
                 case _:
-                    raise QuizParserException("Wrong file format!", line.n)
+                    raise QuizParserException("Wrong file format", line.n)
         return None
 
     def _read_options(self) -> list[Option]:
@@ -124,10 +136,15 @@ class QuizParser:
                 case Line(LineType.CORRECT, text):
                     options.append(Option(n=n, text=text, correct=True))
                     n += 1
-                case Line(LineType.TEXT) | Line(LineType.LINK):
+                case (
+                    Line(LineType.TEXT)
+                    | Line(LineType.EXPLANATION)
+                    | Line(LineType.HINT)
+                    | Line(LineType.LINK)
+                ):
                     break
                 case _:
-                    raise QuizParserException("Wrong file format", line.n)
+                    raise QuizParserException("Wrong file format ", line.n)
 
         if not options:
             assert self._cursor
@@ -137,17 +154,31 @@ class QuizParser:
             )
         return options
 
-    def _read_link(self) -> str | None:
+    def _read_line_type(self, line_type: LineType) -> str | None:
         lines = []
         for line in itertools.chain([self._cursor], self._line_it):
             match line:
                 case None | Line(LineType.EMPTY) | Line(LineType.COMMENT):
                     continue
-                case Line(LineType.LINK, text):
+                case Line(type_, text) if type_ == line_type:
                     lines.append(text)
+                case Line(LineType.CONTINUE, text):
+                    if lines:
+                        lines[-1] += " " + text
+                    else:
+                        break
                 case _:
-                    return "\n".join(lines)
-        return "\n".join(lines) if lines else None
+                    break
+        return " ".join(lines) if lines else None
+
+    def _read_explanation(self) -> str | None:
+        return self._read_line_type(LineType.EXPLANATION)
+
+    def _read_hint(self) -> str | None:
+        return self._read_line_type(LineType.HINT)
+
+    def _read_link(self) -> str | None:
+        return self._read_line_type(LineType.LINK)
 
 
 def get_last_modified(file_path: Path) -> datetime:

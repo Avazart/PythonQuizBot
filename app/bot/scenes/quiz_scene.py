@@ -16,6 +16,7 @@ from ...bot.types import ExitQuizData, Form, NextQuestionData, OptionData
 from ...database.models import Answer, QuizResult
 from ...database.utils.questions import find_question
 from ...database.utils.quizzes import get_quiz_info
+from ...utils.aux_utils import send_parts
 from ...utils.quiz_utils import check_option, fmt_result, show_question
 from ..keyboards.keyboard import main_keyboard
 from ..pages import PageItemData
@@ -113,21 +114,22 @@ class QuizScene(Scene, state=Form.QUIZ):
                 info = await get_quiz_info(quiz_id, session, True)
                 assert info
                 answers = data.get("answers", {})
-                qr = QuizResult(
+                result = QuizResult(
                     user_id=query.from_user.id,
                     quiz_id=info.quiz.id,
                 )
                 for _, answer in answers.items():
                     for option_id in answer:
-                        qr.answers.append(Answer(option_id=option_id))
-                session.add(qr)
-            text = fmt_result(qr)
-            await query.message.answer(
-                text,
+                        result.answers.append(Answer(option_id=option_id))
+                session.add(result)
+
+            parts = fmt_result(result)
+            kwargs = dict(
                 reply_markup=main_keyboard(),
                 link_preview_options=LinkPreviewOptions(is_disabled=True),
                 parse_mode=ParseMode.HTML,
             )
+            await send_parts(query.message, parts, sep="\n\n", **kwargs)
         else:
             await query.message.answer(
                 "Exit quiz.",

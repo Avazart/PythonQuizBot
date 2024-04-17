@@ -74,11 +74,16 @@ class Question(Base):
         nullable=True,
         server_default=None,
     )
-    # explanation: Mapped[str | None] = mapped_column(
-    #     String,
-    #     nullable=True,
-    #     server_default=None,
-    # )
+    hint: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        server_default=None,
+    )
+    explanation: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        server_default=None,
+    )
 
     line_n: Mapped[int | None] = mapped_column(
         Integer, nullable=True, server_default=None

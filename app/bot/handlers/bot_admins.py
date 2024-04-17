@@ -29,9 +29,15 @@ from ...bot.types import (
     StopUploadingData,
 )
 from ...database.utils.quiz_results_ import find_user_results, get_result
-from ...database.utils.quizzes import delete_quiz, find_quiz, get_quiz_info
+from ...database.utils.quizzes import (
+    delete_quiz,
+    find_quiz,
+    get_quiz_info,
+    get_quizzes,
+)
 from ...quiz_parser import from_file, from_text
 from ...settings import RESULT_COUNT
+from ...utils.aux_utils import send_parts
 from ...utils.quiz_utils import (
     fmt_result,
     make_quiz_info_text,
@@ -276,6 +282,26 @@ async def handle_downoad_quiz(
         await bot.send_document(chat.id, buffer_file)
 
 
+@router.message(
+    Command(commands=["download_all"]),
+    F.chat.as_("chat"),
+)
+async def download_all_command(
+    _: Message,
+    chat: Chat,
+    session: AsyncSession,
+    bot: Bot,
+):
+    quizzes = await get_quizzes(0, None, session)
+    for quiz in quizzes:
+        text = quiz_as_text(quiz)
+        buffer_file = BufferedInputFile(
+            file=text.encode("utf-8"),
+            filename=quiz.source,
+        )
+        await bot.send_document(chat.id, buffer_file)
+
+
 # RESULTS
 
 
@@ -287,12 +313,12 @@ async def handle_result(
     session: AsyncSession,
 ):
     if result := await get_result(callback_data.id, session):
-        text = fmt_result(result)
-        await message.answer(
-            text,
+        parts = fmt_result(result)
+        kwargs = dict(
             link_preview_options=LinkPreviewOptions(is_disabled=True),
             parse_mode=ParseMode.HTML,
         )
+        await send_parts(message, parts, sep="\n\n", **kwargs)
 
 
 @router.callback_query(BackData.filter(), F.message.as_("message"))

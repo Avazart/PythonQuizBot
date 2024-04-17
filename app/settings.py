@@ -20,6 +20,10 @@ PRIVATE_COMMANDS: Final[list] = [
         description="Activate uploading quiz files (only for bot admins)",
     ),
     BotCommand(
+        command="/download_all",
+        description="Download all quizzes as files (only for bot admins)",
+    ),
+    BotCommand(
         command="/manage_quizzes",
         description="Allow manage quizzes(only for bot admins)",
     ),
@@ -47,7 +51,8 @@ QUIZ_COUNT: Final[int] = 9
 USER_COUNT: Final[int] = 9 * 3
 RESULT_COUNT: Final[int] = 5
 GROUP_ANONYMOUS_BOT_ID: Final[int] = 1087968824  # GroupAnonymousBot
-CHANNEL_TELEGRAM_ID: Final[int] = 777000  # Telegram - від імені адміна каналу.
+CHANNEL_TELEGRAM_ID: Final[int] = 777000  # Telegram
+MAX_MESSAGE_LENGHT: Final[int] = 4096
 
 
 class Icon(enum.StrEnum):

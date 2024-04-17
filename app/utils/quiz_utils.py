@@ -1,6 +1,5 @@
 import logging
 import re
-import textwrap
 from pathlib import Path
 
 from aiogram import Bot, html
@@ -15,7 +14,8 @@ from ..bot.types import OptionData
 from ..database.models import Quiz, QuizResult
 from ..database.utils.questions import find_question
 from ..database.utils.quizzes import find_quiz, get_quiz_info
-from ..quiz_parser import Question, get_last_modified
+from ..quiz_parser import LineType, Question, get_last_modified
+from .aux_utils import text_wrap
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +25,13 @@ def fmt_question(question: Question, quiz_id: int | None = None):
         lines = [f"{html.bold(str(question.n))}. {question.text}"]
     else:
         lines = [f"{html.bold(f'{quiz_id}.{question.n}')}. {question.text}"]
+
     if question.code:
         lines.append(html.pre_language(html.unparse(question.code), "python"))
+
+    if question.hint:
+        lines.append(html.spoiler(question.hint))
+
     if question.link:
         lines.append(
             " ".join(
@@ -74,17 +79,27 @@ def parse_file_path(path: Path) -> tuple[int | None, str]:
     return quiz_id, name
 
 
+def wrapped(lt: LineType, text: str) -> list[str]:
+    result = []
+    for line_text in filter(None, text.split("\n")):
+        ss = text_wrap(line_text, width=79 - 4)
+        if len(ss) > 1:
+            first, *other = ss
+            first_line = f"# {lt} {first}"
+            other_lines = [f"# {LineType.CONTINUE} {text}" for text in other]
+            result.append(first_line)
+            result.extend(other_lines)
+        else:
+            result.append(f"# {lt} {ss[0]}")
+    return result
+
+
 def quiz_as_text(quiz: Quiz) -> str:
     lines = []
     for n, question in enumerate(quiz.questions, 1):
         lines.append(f"# # {n:=<75}")
         lines.append("\n")
-        lines.extend(
-            [
-                "# ? " + line
-                for line in textwrap.wrap(question.text, width=79 - 4)
-            ]
-        )
+        lines.extend(wrapped(LineType.TEXT, question.text))
         lines.append("\n")
 
         if question.code:
@@ -95,9 +110,17 @@ def quiz_as_text(quiz: Quiz) -> str:
             ch = "+" if option.correct else "-"
             lines.append(f"# {ch} {option.text}")
 
+        if question.explanation:
+            lines.append("\n")
+            lines.extend(wrapped(LineType.EXPLANATION, question.explanation))
+
+        if question.hint:
+            lines.append("\n")
+            lines.extend(wrapped(LineType.HINT, question.hint))
+
         if question.link:
             lines.append("\n")
-            lines.append(f"# > {question.link}")
+            lines.extend(wrapped(LineType.LINK, question.link))
 
         lines.append("\n")
     return "\n".join(lines)
@@ -132,42 +155,50 @@ async def check_option(
         await state.update_data(answers=answers)
 
 
-def fmt_result(result: QuizResult) -> str:
+def _make_answer_text(q: Question, answers: dict) -> tuple[bool, str]:
+    lines = [fmt_question(q)]
+    options = {o.id: o for o in sorted(q.options, key=lambda o: o.n)}
+    answer = set(answers.get(str(q.n), []))
+    correct = True
+    for option_id, option in options.items():
+        if option_id in answer:
+            if option.correct:
+                ch = "✅"
+            else:
+                ch = "❌"
+                correct = False
+        else:
+            if option.correct:
+                ch = "☑"
+                correct = False
+            else:
+                ch = "⚪"
+        lines.append(f"{ch} {html.code(html.unparse(option.text))}")
+
+    if q.explanation:
+        lines.append("")
+        lines.append(q.explanation)
+
+    return correct, "\n".join(lines)
+
+
+def fmt_result(result: QuizResult) -> list[str]:
     answers: dict[str, set[int]] = {}
     for a in result.answers:
         answer = answers.setdefault(str(a.option.question.n), set())
         answer.add(a.option_id)
 
-    lines = []
+    parts = []
     correct_count = 0
     for q in result.quiz.questions:
-        tmp = [fmt_question(q)]
-        options = {o.id: o for o in sorted(q.options, key=lambda o: o.n)}
-        answer = set(answers.get(str(q.n), []))
-        correct_answer = True
-        for option_id, option in options.items():
-            if option_id in answer:
-                if option.correct:
-                    ch = "✅"
-                else:
-                    ch = "❌"
-                    correct_answer = False
-            else:
-                if option.correct:
-                    ch = "☑"
-                    correct_answer = False
-                else:
-                    ch = "⚪"
-            tmp.append(f"{ch} {html.code(html.unparse(option.text))}")
-
-        if correct_answer:
+        correct, text = _make_answer_text(q, answers)
+        if correct:
             correct_count += 1
         else:
-            lines.extend(tmp)
-            lines.append("")
+            parts.append(text)
 
     total = len(result.quiz.questions)
-    lines.insert(
+    parts.insert(
         0,
         "<b>"
         f"Quiz: {result.quiz.name}\n"
@@ -175,7 +206,7 @@ def fmt_result(result: QuizResult) -> str:
         f"DateTime: {result.created_at}"
         "</b>\n",
     )
-    return "\n".join(lines)
+    return parts
 
 
 async def show_question_in_group(
@@ -216,6 +247,8 @@ async def show_question_in_group(
             allows_multiple_answers=multiple_answers,
             correct_option_id=correct_option_id,
             disable_notification=True,
+            explanation=q.explanation,
+            explanation_parse_mode=ParseMode.HTML,
         )
 
 

@@ -97,10 +97,6 @@ def quiz_tool_keyboard(quiz: Quiz) -> InlineKeyboardMarkup:
             callback_data=QuizData(action=Action.DELETE, id=quiz.id).pack(),
         ),
         InlineKeyboardButton(
-            text="📌 Rename",
-            callback_data=QuizData(action=Action.RENAME, id=quiz.id).pack(),
-        ),
-        InlineKeyboardButton(
             text=f"{Icon.LEFT} Back",
             callback_data=BackData().pack(),
         ),

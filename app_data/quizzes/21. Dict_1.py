@@ -1,8 +1,8 @@
-# # base, get, walrus, setdefault
-
 # # 1==========================================================================
 
+
 # ? In Python, a dictionary is an implementation of:
+
 
 # - Linked List
 # - Dynamic array
@@ -12,7 +12,9 @@
 
 # # 2==========================================================================
 
+
 # ? How methods must necessarily have a dictionary key?
+
 
 # - __gt__
 # - __le__
@@ -23,8 +25,10 @@
 
 # # 3==========================================================================
 
+
 # ? What is the algorithmic complexity of retrieving a value by
 # ? key in a dictionary?
+
 
 # - O(n)
 # - O(n^2)
@@ -35,11 +39,14 @@
 
 # # 4==========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2}
 count = fruits["orange"]
 print(count)
+
 
 # - 0
 # - None
@@ -50,11 +57,14 @@ print(count)
 
 # # 5==========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2}
 count = fruits.get("orange")
 print(count)
+
 
 # - 0
 # + None
@@ -65,11 +75,14 @@ print(count)
 
 # # 6==========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2}
 count = fruits.get("orange", 0)
 print(count)
+
 
 # + 0
 # - None
@@ -80,13 +93,16 @@ print(count)
 
 # # 7==========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2, "orange": 3}
 if count := fruits.get("orange"):
     print(count)
 else:
     print("Orange not fount!")
+
 
 # - 0
 # + 3
@@ -99,13 +115,16 @@ else:
 
 # # 8==========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2}
 if count := fruits.get("orange", 0):
     print(count)
 else:
     print("Orange not fount!")
+
 
 # - 0
 # - 3
@@ -118,13 +137,16 @@ else:
 
 # # 9==========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2, "orange": 0}
 if count := fruits.get("orange"):
     print(count)
 else:
     print("Orange not fount!")
+
 
 # - 0
 # - 3
@@ -137,13 +159,16 @@ else:
 
 # # 10=========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2, "orange": 0}
 if (count := fruits.get("orange")) is not None:
     print(count)
 else:
     print("Orange not fount!")
+
 
 # + 0
 # - None
@@ -157,13 +182,16 @@ else:
 
 # # 11=========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2, "orange": 0}
 if count := fruits.get("orange") is not None:
     print(count)
 else:
     print("Orange not fount!")
+
 
 # - 0
 # - None
@@ -177,11 +205,14 @@ else:
 
 # # 12=========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2}
 count = fruits.setdefault("orange", 3)
 print(count)
+
 
 # - 0
 # + 3
@@ -195,11 +226,14 @@ print(count)
 
 # # 13=========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2, "orange": 3}
 count = fruits.setdefault("orange", 5)
 print(count)
+
 
 # - 0
 # + 3
@@ -212,11 +246,14 @@ print(count)
 
 # # 14=========================================================================
 
+
 # ? What will the following code output?
+
 
 fruits = {"apple": 1, "banana": 2}
 count = fruits.setdefault("orange", 5)
 print(count)
+
 
 # - 0
 # - 3
@@ -229,7 +266,9 @@ print(count)
 
 # # 15=========================================================================
 
+
 # ? What will the following code output?
+
 
 boxes = {}
 
@@ -241,6 +280,7 @@ box2 = boxes.setdefault("box2", [])
 
 print(boxes["box1"], boxes["box2"])
 
+
 # - [ ] [ ]
 # - [ ] None
 # + ['apple', 'banana'] [ ]
@@ -248,3 +288,4 @@ print(boxes["box1"], boxes["box2"])
 # - ValueError
 # - IndexError
 # - KeyError
+
