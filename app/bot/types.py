@@ -1,6 +1,5 @@
 import enum
 from dataclasses import dataclass, field
-from datetime import datetime
 
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.state import State, StatesGroup
@@ -17,7 +16,9 @@ class BotContext:
     users_cache: LRUCache = field(
         default_factory=lambda: LRUCache(maxsize=CACHE_SIZE),
     )
-    last_quiz_time: datetime | None = None
+    activity_time_cache: LRUCache = field(
+        default_factory=lambda: LRUCache(maxsize=CACHE_SIZE),
+    )
 
 
 class Form(StatesGroup):
@@ -95,3 +96,7 @@ class FileData(CallbackData, prefix="file"):
 
 class CloseData(CallbackData, prefix="close"):
     pass
+
+
+class UpdateResultsData(CallbackData, prefix="update_results"):
+    message_id: int

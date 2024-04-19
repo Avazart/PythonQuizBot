@@ -22,6 +22,7 @@ from ..types import (
     QuizData,
     ResultData,
     StopUploadingData,
+    UpdateResultsData,
 )
 
 logger = logging.getLogger(__name__)
@@ -134,3 +135,16 @@ def stop_uploading_keyboard() -> InlineKeyboardMarkup:
             ]
         ]
     )
+
+
+def update_results_keyboard(message_id: int) -> InlineKeyboardMarkup:
+    buttons = [
+        [
+            _close_button(),
+            InlineKeyboardButton(
+                text=f"{Icon.UPDATE} Update",
+                callback_data=UpdateResultsData(message_id=message_id).pack(),
+            ),
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)

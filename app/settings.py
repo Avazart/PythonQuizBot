@@ -16,14 +16,6 @@ PRIVATE_COMMANDS: Final[list] = [
         description="Show list of local files (only for bot admins)",
     ),
     BotCommand(
-        command="/upload",
-        description="Activate uploading quiz files (only for bot admins)",
-    ),
-    BotCommand(
-        command="/download_all",
-        description="Download all quizzes as files (only for bot admins)",
-    ),
-    BotCommand(
         command="/manage_quizzes",
         description="Allow manage quizzes(only for bot admins)",
     ),
@@ -31,12 +23,24 @@ PRIVATE_COMMANDS: Final[list] = [
         command="/users",
         description="Show list of all users (only for bot admins)",
     ),
+    BotCommand(
+        command="/upload",
+        description="Activate uploading quiz files (only for bot admins)",
+    ),
+    BotCommand(
+        command="/download_all",
+        description="Download all quizzes as files (only for bot admins)",
+    ),
 ]
 
 GROUP_COMMANDS: Final[list] = [
     BotCommand(
         command="/quiz",
         description="Post random question from random quiz to group",
+    ),
+    BotCommand(
+        command="/results",
+        description="Show quiz results",
     ),
     BotCommand(
         command="/hide",

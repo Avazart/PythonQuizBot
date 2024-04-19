@@ -1,14 +1,16 @@
 import logging
 
-from aiogram import F, Router, html
+from aiogram import F, Router
 from aiogram.enums import ChatType, ParseMode
 from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, LinkPreviewOptions, Message, User
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ...database.models import SingleAnswer
+from ...database.utils.answers import find_single_answers
 from ...database.utils.questions import find_question
-from ...utils.quiz_utils import check_option, show_question
+from ...utils.quiz_utils import check_option, make_answer_text, show_question
 from ..keyboards.keyboard import main_keyboard
 from ..pages import PageCloseData, PageId, PageShowData, select_quizzes_page
 from ..types import ApplyData, Form, OptionData
@@ -31,7 +33,9 @@ async def start_command(
         await message.answer("Main menu", reply_markup=main_keyboard())
         return
     try:
-        quiz_id, q_n = map(int, command.args.split("_", maxsplit=1))
+        quiz_id, q_n, group_id, message_id = map(
+            int, command.args.split("_", maxsplit=3)
+        )
         if question := await find_question(quiz_id, q_n, session):
             await show_question(
                 question,
@@ -41,7 +45,11 @@ async def start_command(
                 message=message,
             )
             await state.set_state(Form.SINGLE_QUESTION)
-            await state.update_data(answers={})
+            await state.update_data(
+                group_id=group_id,
+                message_id=message_id,
+                answers={},
+            )
         else:
             await message.answer("Sorry, but the qustion is not exist!")
     except ValueError:
@@ -67,42 +75,51 @@ async def handle_option(
     Form.SINGLE_QUESTION,
     ApplyData.filter(),
     F.message.as_("message"),
+    F.from_user.as_("from_user"),
 )
 async def handle_apply(
     _: CallbackQuery,
     message: Message,
+    from_user: User,
     callback_data: ApplyData,
     state: FSMContext,
     session: AsyncSession,
 ):
-    if q := await find_question(
-        callback_data.quiz_id, callback_data.q_n, session
-    ):
-        options = {o.id: o for o in sorted(q.options, key=lambda o: o.n)}
-        data = await state.get_data()
-        answers = data.get("answers", {})
-        answer = set(answers.get(str(callback_data.q_n), []))
+    async with session.begin():
+        if q := await find_question(
+            callback_data.quiz_id,
+            callback_data.q_n,
+            session,
+        ):
+            data = await state.get_data()
+            answers = data.get("answers", {})
+            group_id = data["group_id"]
+            message_id = data["message_id"]
+            answer = answers.get(str(q.n), [])
+            correct, text = make_answer_text(q, answer)
 
-        lines = []
-        for option_id, option in options.items():
-            if option_id in answer:
-                ch = "✅" if option.correct else "❌"
-            else:
-                ch = "☑" if option.correct else "⚪"
+            if not await find_single_answers(
+                group_id,
+                message_id,
+                from_user.id,
+                session,
+            ):
+                for option_id in answer:
+                    single = SingleAnswer(
+                        group_id=group_id,
+                        message_id=message_id,
+                        user_id=from_user.id,
+                        option_id=option_id,
+                    )
+                    session.add(single)
 
-            lines.append(f"{ch} {html.code(option.text)}")
-
-        if q.explanation:
-            lines.append("")
-            lines.append(q.explanation)
-
-        await message.edit_reply_markup(reply_markup=None)
-        await state.clear()
-        await message.answer(
-            "\n".join(lines),
-            parse_mode=ParseMode.HTML,
-            reply_markup=main_keyboard(),
-        )
+            await message.edit_reply_markup(reply_markup=None)
+            await state.clear()
+            await message.edit_text(
+                text,
+                link_preview_options=LinkPreviewOptions(is_disabled=True),
+                parse_mode=ParseMode.HTML,
+            )
 
 
 @router.message(F.text == "Quizzes")

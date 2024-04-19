@@ -255,4 +255,3 @@ print(tpl)
 
 
 # > https://pynative.com/python-tuple-quiz/
-

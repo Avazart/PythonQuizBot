@@ -1,5 +1,7 @@
+import asyncio
 import logging
 import re
+from collections.abc import Container
 from pathlib import Path
 
 from aiogram import Bot, html
@@ -155,10 +157,9 @@ async def check_option(
         await state.update_data(answers=answers)
 
 
-def _make_answer_text(q: Question, answers: dict) -> tuple[bool, str]:
+def make_answer_text(q: Question, answer: Container[int]) -> tuple[bool, str]:
     lines = [fmt_question(q)]
     options = {o.id: o for o in sorted(q.options, key=lambda o: o.n)}
-    answer = set(answers.get(str(q.n), []))
     correct = True
     for option_id, option in options.items():
         if option_id in answer:
@@ -191,7 +192,8 @@ def fmt_result(result: QuizResult) -> list[str]:
     parts = []
     correct_count = 0
     for q in result.quiz.questions:
-        correct, text = _make_answer_text(q, answers)
+        answer = answers.get(str(q.n), [])
+        correct, text = make_answer_text(q, answer)
         if correct:
             correct_count += 1
         else:
@@ -223,16 +225,24 @@ async def show_question_in_group(
     correct_options = {opt.n for opt in q.options if opt.correct}
     multiple_answers = len(correct_options) != 1
     option_texts = [opt.text for opt in sorted(q.options, key=lambda o: o.n)]
-    link = await create_start_link(bot, payload=f"{quiz_id}_{q.n}")
-    link_line = html.link("Go to answer", link)
 
     if q.code or multiple_answers:
         lines = [fmt_question(q, quiz_id)]
         lines.extend(
             "⚪ " + html.code(html.unparse(text)) for text in option_texts
         )
+        m = await message.answer(
+            "\n".join(lines),
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
+            parse_mode=ParseMode.HTML,
+        )
+        params = (quiz_id, q.n, message.chat.id, m.message_id)
+        link = await create_start_link(bot, payload="_".join(map(str, params)))
+        link_line = html.link("Go to answer", link)
         lines.append(link_line)
-        await message.answer(
+
+        await asyncio.sleep(0.2)
+        await m.edit_text(
             "\n".join(lines),
             link_preview_options=LinkPreviewOptions(is_disabled=True),
             parse_mode=ParseMode.HTML,

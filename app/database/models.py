@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from aiogram.types import User as AiogramUser
 from sqlalchemy import (
     DATETIME,
     Boolean,
@@ -38,6 +39,15 @@ class User(MappedAsDataclass, Base):
         if self.last_name:
             return f"{self.first_name} {self.last_name}"
         return self.first_name
+
+    def as_aiogram_user(self) -> AiogramUser:
+        return AiogramUser(
+            id=self.id,
+            is_bot=False,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            username=self.username,
+        )
 
 
 class Quiz(Base, TimeStampMixin):
@@ -160,3 +170,25 @@ class Answer(Base):
     result: Mapped[QuizResult] = relationship(
         QuizResult, back_populates="answers"
     )
+
+
+class SingleAnswer(Base):
+    __tablename__ = "single_answers"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    group_id: Mapped[int] = mapped_column()
+    message_id: Mapped[int] = mapped_column()
+    user_id = mapped_column(
+        ForeignKey(User.id, ondelete="CASCADE", onupdate="CASCADE")
+    )
+    option_id: Mapped[int] = mapped_column(
+        ForeignKey(Option.id, ondelete="CASCADE", onupdate="CASCADE")
+    )
+
+    user: Mapped[User] = relationship(User)
+    option: Mapped[Option] = relationship(Option)
