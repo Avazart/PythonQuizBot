@@ -1,10 +1,8 @@
-import itertools
 import logging
 import random
-from datetime import datetime
 
 from aiogram import Bot, F, Router
-from aiogram.enums import ChatType, ParseMode
+from aiogram.enums import ChatType
 from aiogram.filters import Command, CommandObject
 from aiogram.types import (
     CallbackQuery,
@@ -14,13 +12,10 @@ from aiogram.types import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...database.utils.answers import find_single_answers
-from ...database.utils.questions import get_options
 from ...database.utils.quizzes import get_quizzes_info
-from ...utils.quiz_utils import show_question_in_group
-from ..keyboards.keyboard import update_results_keyboard
+from ...utils.quiz_utils import show_question_in_group, show_results
 from ..middlewares.group_middlewares import GroupMiddleware
-from ..types import CloseData, UpdateResultsData
+from ..types import CloseData, ShowResultsData
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -76,85 +71,39 @@ async def quiz_command(
     F.chat.as_("chat"),
 )
 async def results_command(
-    message: Message,
+    _: Message,
     reply_to_message: Message,
     chat: Chat,
     session: AsyncSession,
 ):
-    if answers := await find_single_answers(
+    await show_results(
         chat.id,
         reply_to_message.message_id,
-        None,
+        False,
+        reply_to_message,
         session,
-    ):
-        question_id = answers[0].option.question_id
-        options = await get_options(question_id, session)
-        correct = {option.id for option in options if option.correct}
-        lines = []
-        g = itertools.groupby(answers, key=lambda a: a.user_id)
-        for _, answer in g:
-            user_opts = list(answer)
-            user = user_opts[0].user.as_aiogram_user()
-            opt_ids = {a.option_id for a in user_opts}
-            ch = "👍" if opt_ids == correct else "👎"
-            lines.append(f"{user.mention_html()} {ch}")
-        await reply_to_message.reply(
-            text="\n".join(lines),
-            parse_mode=ParseMode.HTML,
-            reply_markup=update_results_keyboard(reply_to_message.message_id),
-        )
-    else:
-        await message.answer(
-            "No results, yet!",
-            reply_markup=update_results_keyboard(reply_to_message.message_id),
-        )
+    )
 
 
 @router.callback_query(
-    UpdateResultsData.filter(),
+    ShowResultsData.filter(),
     F.message.as_("message"),
     F.message.chat.as_("chat"),
 )
-async def handle_update_results(
+async def show_or_update_results(
     _: CallbackQuery,
     message: Message,
     chat: Chat,
-    callback_data: UpdateResultsData,
+    callback_data: ShowResultsData,
     session: AsyncSession,
 ):
-    if answers := await find_single_answers(
+    await show_results(
         chat.id,
         callback_data.message_id,
-        None,
+        callback_data.edit,
+        message,
         session,
-    ):
-        question_id = answers[0].option.question_id
-        options = await get_options(question_id, session)
-        correct = {option.id for option in options if option.correct}
-        lines = []
-        g = itertools.groupby(answers, key=lambda a: a.user_id)
-        for _, answer in g:
-            user_opts = list(answer)
-            user = user_opts[0].user.as_aiogram_user()
-            opt_ids = {a.option_id for a in user_opts}
-            ch = "👍" if opt_ids == correct else "👎"
-            lines.append(f"{user.mention_html()} {ch}")
-        lines.append(f"\nLast update: {datetime.now():%H:%M:%S}")
-        await message.edit_text(
-            text="\n".join(lines),
-            parse_mode=ParseMode.HTML,
-            reply_markup=update_results_keyboard(callback_data.message_id),
-        )
-    else:
-        lines = [
-            "No results, yet!",
-            "",
-            f"Last update: {datetime.now():%H:%M:%S}",
-        ]
-        await message.edit_text(
-            text="\n".join(lines),
-            reply_markup=update_results_keyboard(callback_data.message_id),
-        )
+    )
 
 
 @router.callback_query(CloseData.filter(), F.message.as_("message"))

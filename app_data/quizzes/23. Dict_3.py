@@ -1,7 +1,7 @@
 # # 1==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 tpl = "apple", "banana"
@@ -20,7 +20,7 @@ print(fruits)
 # # 2==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 tpl = "apple", "banana"
@@ -40,7 +40,7 @@ print(fruits)
 # # 3==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 lst = [3, 1, 2, 1, 2, 3]
@@ -60,7 +60,7 @@ print(list(fruits))
 # # 4==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 d1 = {"apple": 1}
@@ -83,7 +83,7 @@ print(d1 is d2, d1 == d2)
 # # 5==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 box = ["apple", "banana"]
@@ -107,7 +107,7 @@ print(d1 is d2, d1 == d2)
 # # 6==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 from copy import deepcopy

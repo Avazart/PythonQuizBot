@@ -1,7 +1,7 @@
 # # 1==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}
@@ -20,7 +20,7 @@ for x, y in fruits:
 # # 2==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}
@@ -39,7 +39,7 @@ for x in fruits:
 # # 3==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}
@@ -58,7 +58,7 @@ for x in fruits.keys():
 # # 4==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}
@@ -77,7 +77,7 @@ for x in fruits.values():
 # # 5==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}
@@ -97,7 +97,7 @@ for p in fruits.items():
 # # 6==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}
@@ -116,7 +116,7 @@ for x, y in fruits.items():
 # # 7==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 lst = [(111, "apple"), (2, "banana"), (111, "orange")]
@@ -139,7 +139,7 @@ print(list(fruits.values()))
 # # 8==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 lst = [(111, "apple"), (111, "banana"), (2, "apple")]
@@ -159,7 +159,7 @@ print(list(fruits.keys()))
 # # 9==========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 tpl = "apple", "banana"
@@ -179,7 +179,7 @@ print(fruits)
 # # 10=========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 d1 = {"apple": 1, "banana": 2}
@@ -200,7 +200,7 @@ print(d1)
 # # 11=========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 d1 = {"apple": 1, "banana": 2}
@@ -221,7 +221,7 @@ print(d)
 # # 12=========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2, "orange": 3}
@@ -241,7 +241,7 @@ print(fruits)
 # # 13=========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}
@@ -261,7 +261,7 @@ print(x, fruits)
 # # 14=========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "orange": 3}
@@ -280,7 +280,7 @@ print(x, fruits)
 # # 15=========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "orange": 3}
@@ -299,7 +299,7 @@ print(x, fruits)
 # # 16=========================================================================
 
 
-# ? What will the following cofruitse output?
+# ? What is the output of the following code?
 
 
 fruits = {"apple": 1, "banana": 2}

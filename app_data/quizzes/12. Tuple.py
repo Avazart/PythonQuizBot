@@ -71,7 +71,7 @@ print(tpl[2:5], tpl[:4], tpl[3:])
 
 
 # ! <strong>Explanation</strong>: To get a sub tuple out of the tuple, we need
-# / to specify the range of indexes.&nbsp; We need to specify where to start
+# / to specify the range of indexes. ; We need to specify where to start
 # / and where to end the range. <em><strong>Syntax</strong></em>:
 # / <code>tuple[start:end]</code> If the start is missing it takes 0 as the
 # / starting index.
@@ -246,10 +246,10 @@ print(tpl)
 
 
 # ! <strong>Explanation</strong>: <span data-preserver-spaces="true">A tuple
-# / is&nbsp;</span><strong><span
-# / data-preserver-spaces="true">immutable.&nbsp;</span></strong><span
+# / is ;</span><strong><span
+# / data-preserver-spaces="true">immutable. ;</span></strong><span
 # / data-preserver-spaces="true">Once a tuple is created, you cannot change
-# / its values. If you try to change its value, you will receive a&nbsp;
+# / its values. If you try to change its value, you will receive a ;
 # / </span><code>TypeError: 'tuple' object does not support item
 # / assignment</code>
 
