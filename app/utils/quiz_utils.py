@@ -1,7 +1,9 @@
 import asyncio
+import itertools
 import logging
 import re
 from collections.abc import Container
+from datetime import datetime
 from pathlib import Path
 
 from aiogram import Bot, html
@@ -9,12 +11,17 @@ from aiogram.enums import ParseMode, PollType
 from aiogram.fsm.context import FSMContext
 from aiogram.types import LinkPreviewOptions, Message
 from aiogram.utils.deep_linking import create_start_link
+from ..database.utils.answers import find_single_answers
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..bot.keyboards.keyboard import question_keyboard
+from ..bot.keyboards.keyboard import (
+    goto_answer_keyboard,
+    question_keyboard,
+    update_results_keyboard,
+)
 from ..bot.types import OptionData
 from ..database.models import Quiz, QuizResult
-from ..database.utils.questions import find_question
+from ..database.utils.questions import find_question, get_options
 from ..database.utils.quizzes import find_quiz, get_quiz_info
 from ..quiz_parser import LineType, Question, get_last_modified
 from .aux_utils import text_wrap
@@ -61,6 +68,51 @@ async def show_question(
         link_preview_options=LinkPreviewOptions(is_disabled=True),
         parse_mode=ParseMode.HTML,
     )
+
+
+async def show_results(
+    chat_id: int,
+    message_id: int,
+    edit: bool,
+    message: Message,
+    session: AsyncSession,
+):
+    if answers := await find_single_answers(
+        chat_id,
+        message_id,
+        None,
+        session,
+    ):
+        question_id = answers[0].option.question_id
+        options = await get_options(question_id, session)
+        correct = {option.id for option in options if option.correct}
+        lines = []
+        g = itertools.groupby(answers, key=lambda a: a.user_id)
+        for _, answer in g:
+            user_opts = list(answer)
+            user = user_opts[0].user.as_aiogram_user()
+            opt_ids = {a.option_id for a in user_opts}
+            ch = "👍" if opt_ids == correct else "👎"
+            lines.append(f"{user.mention_html()} {ch}")
+        if edit:
+            lines.append(f"\nLast update: {datetime.now():%H:%M:%S}")
+
+        method = "edit_text" if edit else "reply"
+        await getattr(message, method)(
+            text="\n".join(lines),
+            parse_mode=ParseMode.HTML,
+            reply_markup=update_results_keyboard(message_id),
+        )
+    else:
+        method = "edit_text" if edit else "answer"
+        lines = ["No results, yet!"]
+        if edit:
+            lines.extend(["", f"Last update: {datetime.now():%H:%M:%S}"])
+
+        await getattr(message, method)(
+            text="\n".join(lines),
+            reply_markup=update_results_keyboard(message_id),
+        )
 
 
 def make_quiz_info_text(quiz: Quiz, count: int) -> str:
@@ -192,7 +244,7 @@ def fmt_result(result: QuizResult) -> list[str]:
     parts = []
     correct_count = 0
     for q in result.quiz.questions:
-        answer = answers.get(str(q.n), [])
+        answer = answers.get(str(q.n), set())
         correct, text = make_answer_text(q, answer)
         if correct:
             correct_count += 1
@@ -238,15 +290,9 @@ async def show_question_in_group(
         )
         params = (quiz_id, q.n, message.chat.id, m.message_id)
         link = await create_start_link(bot, payload="_".join(map(str, params)))
-        link_line = html.link("Go to answer", link)
-        lines.append(link_line)
-
+        markup = goto_answer_keyboard(link, m.message_id)
         await asyncio.sleep(0.2)
-        await m.edit_text(
-            "\n".join(lines),
-            link_preview_options=LinkPreviewOptions(is_disabled=True),
-            parse_mode=ParseMode.HTML,
-        )
+        await m.edit_reply_markup(reply_markup=markup)
     else:
         correct_option_id = next(iter(correct_options)) - 1
         await message.answer_poll(

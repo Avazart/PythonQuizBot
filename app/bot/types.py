@@ -98,5 +98,6 @@ class CloseData(CallbackData, prefix="close"):
     pass
 
 
-class UpdateResultsData(CallbackData, prefix="update_results"):
+class ShowResultsData(CallbackData, prefix="show_results"):
     message_id: int
+    edit: bool

@@ -22,7 +22,7 @@ from ..types import (
     QuizData,
     ResultData,
     StopUploadingData,
-    UpdateResultsData,
+    ShowResultsData,
 )
 
 logger = logging.getLogger(__name__)
@@ -143,7 +143,26 @@ def update_results_keyboard(message_id: int) -> InlineKeyboardMarkup:
             _close_button(),
             InlineKeyboardButton(
                 text=f"{Icon.UPDATE} Update",
-                callback_data=UpdateResultsData(message_id=message_id).pack(),
+                callback_data=ShowResultsData(
+                    message_id=message_id,
+                    edit=True,
+                ).pack(),
+            ),
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def goto_answer_keyboard(url: str, message_id: int) -> InlineKeyboardMarkup:
+    buttons = [
+        [
+            InlineKeyboardButton(text="Go to answer", url=url),
+            InlineKeyboardButton(
+                text="Show results",
+                callback_data=ShowResultsData(
+                    message_id=message_id,
+                    edit=False,
+                ).pack(),
             ),
         ]
     ]

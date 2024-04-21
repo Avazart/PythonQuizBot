@@ -37,7 +37,7 @@ tpl = ("Orange", [10, 20, 30], (5, 15, 25))
 # ? What is the type of the following variable
 
 
-tpl = "Orange"
+tpl = ("Orange")
 print(type(tpl))
 
 
@@ -255,3 +255,4 @@ print(tpl)
 
 
 # > https://pynative.com/python-tuple-quiz/
+
