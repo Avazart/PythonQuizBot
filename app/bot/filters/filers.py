@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from aiogram.filters import BaseFilter
 from aiogram.types import CallbackQuery, Message
 
-from ...settings import GROUP_ANONYMOUS_BOT_ID
 from ...bot.types import BotContext
 
 logger = logging.getLogger(__name__)

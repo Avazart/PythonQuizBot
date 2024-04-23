@@ -11,7 +11,6 @@ from aiogram.enums import ParseMode, PollType
 from aiogram.fsm.context import FSMContext
 from aiogram.types import LinkPreviewOptions, Message
 from aiogram.utils.deep_linking import create_start_link
-from ..database.utils.answers import find_single_answers
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..bot.keyboards.keyboard import (
@@ -21,6 +20,7 @@ from ..bot.keyboards.keyboard import (
 )
 from ..bot.types import OptionData
 from ..database.models import Quiz, QuizResult
+from ..database.utils.answers import find_single_answers
 from ..database.utils.questions import find_question, get_options
 from ..database.utils.quizzes import find_quiz, get_quiz_info
 from ..quiz_parser import LineType, Question, get_last_modified

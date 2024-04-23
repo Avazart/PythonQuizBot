@@ -118,6 +118,7 @@ class QuizScene(Scene, state=Form.QUIZ):
                     user_id=query.from_user.id,
                     quiz_id=info.quiz.id,
                 )
+                result.answers = []
                 for _, answer in answers.items():
                     for option_id in answer:
                         result.answers.append(Answer(option_id=option_id))

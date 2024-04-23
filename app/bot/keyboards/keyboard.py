@@ -21,8 +21,8 @@ from ..types import (
     OptionData,
     QuizData,
     ResultData,
-    StopUploadingData,
     ShowResultsData,
+    StopUploadingData,
 )
 
 logger = logging.getLogger(__name__)

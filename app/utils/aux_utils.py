@@ -64,6 +64,8 @@ async def send_parts(
     sep: str = "\n",
     **kwargs,
 ):
+    assert parts
+
     message_parts = [parts[0]]
     lenght = len(parts[0])
 
