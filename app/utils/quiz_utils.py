@@ -44,7 +44,7 @@ def fmt_question(question: Question, quiz_id: int | None = None):
     if question.link:
         lines.append(
             " ".join(
-                html.link(f"[{i}]", question.link)
+                html.link(f"[{i}]", link)
                 for i, link in enumerate(
                     filter(None, question.link.split()), 1
                 )
