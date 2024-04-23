@@ -206,9 +206,6 @@ print(bool(0), bool(3.14159), bool(-3), bool(1.0+1j))
 # - False True False True
 
 
-# ! <strong>Explanation</strong>:
-
-
 # > https://pynative.com/python-operators-and-expression-quiz/
 
 
@@ -263,16 +260,13 @@ print(x)
 
 x = 6
 y = 2
-print(x ** yб x // y)
+print(x ** y, x // y)
 
 
 # - 66 0
 # - 36 0
 # - 66 3
 # + 36 3
-
-
-# ! <strong>Explanation</strong>:
 
 
 # > https://pynative.com/python-operators-and-expression-quiz/

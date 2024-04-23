@@ -16,6 +16,8 @@ for x, y in fruits:
 # + ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
+
 
 # # 2==========================================================================
 
@@ -35,6 +37,7 @@ for x in fruits:
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 3==========================================================================
 
@@ -54,6 +57,7 @@ for x in fruits.keys():
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 4==========================================================================
 
@@ -74,6 +78,8 @@ for x in fruits.values():
 # - KeyError
 
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
+
 # # 5==========================================================================
 
 
@@ -93,6 +99,7 @@ for p in fruits.items():
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 6==========================================================================
 
@@ -112,6 +119,7 @@ for x, y in fruits.items():
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 7==========================================================================
 
@@ -135,6 +143,7 @@ print(list(fruits.values()))
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 8==========================================================================
 
@@ -155,6 +164,7 @@ print(list(fruits.keys()))
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 9==========================================================================
 
@@ -174,6 +184,10 @@ print(fruits)
 # + { 'banana': 1, 'apple': 2 }
 # - SyntaxError
 # - ValueError
+
+# > https://www.pythontutorial.net/python-basics/python-dictionary-comprehension/
+# > https://www.pythontutorial.net/python-built-in-functions/python-enumerate/
+# > https://docs.python.org/3/library/functions.html#reversed
 
 
 # # 10=========================================================================
@@ -196,6 +210,8 @@ print(d1)
 # - {'apple': 4, 'orange': 3}
 # - AttributeError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
+
 
 # # 11=========================================================================
 
@@ -217,6 +233,8 @@ print(d)
 # - {'apple': 4, 'orange': 3}
 # - AttributeError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
+
 
 # # 12=========================================================================
 
@@ -236,6 +254,8 @@ print(fruits)
 # - SyntaxError
 # - KeyError
 # - AttributeError
+
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 
 # # 13=========================================================================
@@ -257,6 +277,8 @@ print(x, fruits)
 # - KeyError
 # - AttributeError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
+
 
 # # 14=========================================================================
 
@@ -276,6 +298,8 @@ print(x, fruits)
 # + KeyError
 # - AttributeError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
+
 
 # # 15=========================================================================
 
@@ -294,6 +318,8 @@ print(x, fruits)
 # - SyntaxError
 # - KeyError
 # - AttributeError
+
+# > https://docs.python.org/3/library/stdtypes.html#dict.pop
 
 
 # # 16=========================================================================
@@ -317,3 +343,4 @@ print(item, fruits)
 # - KeyError
 # - AttributeError
 
+# > https://docs.python.org/3/library/stdtypes.html#dict.popitem

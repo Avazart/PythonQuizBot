@@ -16,6 +16,7 @@ print(fruits)
 # - KeyError
 # - AttributeError
 
+# > https://docs.python.org/3/library/stdtypes.html#dict.fromkeys
 
 # # 2==========================================================================
 
@@ -35,6 +36,8 @@ print(fruits)
 # + {'apple': 0, 'banana': 0}
 # - SyntaxError
 # - AttributeError
+
+# > https://docs.python.org/3/library/stdtypes.html#dict.fromkeys
 
 
 # # 3==========================================================================
@@ -56,6 +59,7 @@ print(list(fruits))
 # - SyntaxError
 # - AttributeError
 
+# > https://docs.python.org/3/library/stdtypes.html#dict.fromkeys
 
 # # 4==========================================================================
 
@@ -79,6 +83,8 @@ print(d1 is d2, d1 == d2)
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/advanced-python/python-is-operator/
+# > https://www.programiz.com/python-programming/shallow-deep-copy
 
 # # 5==========================================================================
 
@@ -103,6 +109,9 @@ print(d1 is d2, d1 == d2)
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/advanced-python/python-is-operator/
+# > https://docs.python.org/3/library/copy.html
+# > https://www.programiz.com/python-programming/shallow-deep-copy
 
 # # 6==========================================================================
 
@@ -129,3 +138,6 @@ print(d1 is d2, d1 == d2)
 # - ValueError
 # - KeyError
 
+# > https://www.pythontutorial.net/advanced-python/python-is-operator/
+# > https://docs.python.org/3/library/copy.html
+# > https://www.programiz.com/python-programming/shallow-deep-copy

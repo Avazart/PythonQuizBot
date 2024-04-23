@@ -54,6 +54,7 @@ print(count)
 # - IndexError
 # + KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 5==========================================================================
 
@@ -72,6 +73,7 @@ print(count)
 # - IndexError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 6==========================================================================
 
@@ -90,6 +92,7 @@ print(count)
 # - IndexError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 7==========================================================================
 
@@ -113,6 +116,8 @@ else:
 # - Orange not fount!
 
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
+
 # # 8==========================================================================
 
 
@@ -134,6 +139,7 @@ else:
 # - KeyError
 # + Orange not fount!
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 9==========================================================================
 
@@ -156,6 +162,7 @@ else:
 # - KeyError
 # + Orange not fount!
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 10=========================================================================
 
@@ -179,6 +186,7 @@ else:
 # - KeyError
 # - Orange not fount!
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 11=========================================================================
 
@@ -202,6 +210,7 @@ else:
 # - KeyError
 # - Orange not fount!
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 12=========================================================================
 
@@ -223,6 +232,7 @@ print(count)
 # - IndexError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 13=========================================================================
 
@@ -243,6 +253,7 @@ print(count)
 # - IndexError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 14=========================================================================
 
@@ -263,6 +274,7 @@ print(count)
 # - IndexError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
 
 # # 15=========================================================================
 
@@ -289,3 +301,4 @@ print(boxes["box1"], boxes["box2"])
 # - IndexError
 # - KeyError
 
+# > https://www.pythontutorial.net/python-basics/python-dictionary/
