@@ -109,33 +109,33 @@ class Page:
 # Quizzes
 
 
-async def get_quizzes(offset: int, limit: int, session) -> list:
+async def _get_quizzes(offset: int, limit: int, session) -> list:
     return await get_quizzes_info(offset, limit, session)
 
 
-def get_quiz_text(q: QuizInfo) -> str:
+def _get_quiz_text(q: QuizInfo) -> str:
     return f"{q.quiz.id}. {q.quiz.name} ({q.question_count})"
 
 
 # Users
 
 
-async def get_users(offset: int, limit: int, session) -> list:
+async def _get_users(offset: int, limit: int, session) -> list:
     return await get_users_info(offset, limit, session)
 
 
-def get_user_text(u: UserInfo) -> str:
+def _get_user_text(u: UserInfo) -> str:
     return f"{u.user.username or u.user.full_name} ({u.result_count})"
 
 
 # Files
 
 
-async def get_files(offset: int, limit: int, files: dict) -> list:
+async def _get_files(offset: int, limit: int, files: dict) -> list:
     return list(itertools.islice(files.items(), offset, offset + limit))
 
 
-def get_file_text(file: tuple) -> str:
+def _get_file_text(file: tuple) -> str:
     name, file_name, _, exist = file[1]
     ch = Icon.UPDATE if exist else Icon.UP
     return f"{ch} {file_name}"
@@ -145,8 +145,8 @@ manage_quizzes_page = Page(
     id=PageId.MANAGE_QUIZZES,
     text="Quizzes:",
     limit=QUIZ_COUNT,
-    items_getter=get_quizzes,
-    item_text_getter=get_quiz_text,
+    items_getter=_get_quizzes,
+    item_text_getter=_get_quiz_text,
     item_id_getter=lambda q: q.quiz.id,
 )
 
@@ -154,8 +154,8 @@ select_quizzes_page = Page(
     id=PageId.SELECT_QUIZZES,
     text="Quizzes:",
     limit=QUIZ_COUNT,
-    items_getter=get_quizzes,
-    item_text_getter=get_quiz_text,
+    items_getter=_get_quizzes,
+    item_text_getter=_get_quiz_text,
     item_id_getter=lambda q: q.quiz.id,
 )
 
@@ -163,8 +163,8 @@ users_page = Page(
     id=PageId.USERS,
     text="Users:",
     limit=USER_COUNT,
-    items_getter=get_users,
-    item_text_getter=get_user_text,
+    items_getter=_get_users,
+    item_text_getter=_get_user_text,
     item_id_getter=lambda u: u.user.id,
 )
 
@@ -172,7 +172,7 @@ files_page = Page(
     id=PageId.FILES,
     text="Files:",
     limit=FILE_COUNT,
-    items_getter=get_files,
-    item_text_getter=get_file_text,
+    items_getter=_get_files,
+    item_text_getter=_get_file_text,
     item_id_getter=lambda f: int(f[0]),
 )

@@ -1,5 +1,6 @@
 import logging
 import random
+import re
 
 from aiogram import Bot, F, Router
 from aiogram.enums import ChatType
@@ -34,16 +35,16 @@ async def hide_command(message: Message):
 
 @router.message(Command(commands=["quiz"]))
 async def quiz_command(
-    message: Message,
-    command: CommandObject,
-    session: AsyncSession,
-    bot: Bot,
+        message: Message,
+        command: CommandObject,
+        session: AsyncSession,
+        bot: Bot,
 ):
     if not (quizzes := await get_quizzes_info(0, None, session)):
         await message.answer("No quizzes!")
         return
 
-    if args := command.args and command.args.split():
+    if args := command.args and re.split(r"[ .-]", command.args):
         try:
             quiz_id = int(args[0])
             quiz, count = next(
@@ -68,10 +69,10 @@ async def quiz_command(
     F.chat.as_("chat"),
 )
 async def results_command(
-    _: Message,
-    reply_to_message: Message,
-    chat: Chat,
-    session: AsyncSession,
+        _: Message,
+        reply_to_message: Message,
+        chat: Chat,
+        session: AsyncSession,
 ):
     await show_results(
         chat.id,
@@ -88,11 +89,11 @@ async def results_command(
     F.message.chat.as_("chat"),
 )
 async def show_or_update_results(
-    _: CallbackQuery,
-    message: Message,
-    chat: Chat,
-    callback_data: ShowResultsData,
-    session: AsyncSession,
+        _: CallbackQuery,
+        message: Message,
+        chat: Chat,
+        callback_data: ShowResultsData,
+        session: AsyncSession,
 ):
     await show_results(
         chat.id,
