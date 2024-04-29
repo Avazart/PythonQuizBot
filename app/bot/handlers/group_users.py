@@ -60,6 +60,8 @@ async def quiz_command(
     else:
         quiz, count = random.choice(quizzes)
         q_n = random.randint(1, count)
+
+    logger.debug(f"{quiz.id=} {q_n=}")
     await show_question_in_group(quiz.id, q_n, session, message, bot)
 
 

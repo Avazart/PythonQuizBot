@@ -38,7 +38,7 @@ class LineType(enum.StrEnum):
     CONTINUE = "/"
 
 
-PATTERN = re.compile(r"^#\s*([-?+#>!*/])\s+(.*)$")
+PATTERN = re.compile(r"^#\s*([-?+#>!*/])\s(.*)$")
 
 
 @dataclass

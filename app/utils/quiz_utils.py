@@ -277,8 +277,10 @@ async def show_question_in_group(
     correct_options = {opt.n for opt in q.options if opt.correct}
     multiple_answers = len(correct_options) != 1
     option_texts = [opt.text for opt in sorted(q.options, key=lambda o: o.n)]
-
-    if q.code or multiple_answers:
+    too_long_for_pool = (len(q.text) >= 300 - 10) or any(
+        len(opt) >= 100 - 3 for opt in option_texts
+    )
+    if q.code or multiple_answers or too_long_for_pool:
         lines = [fmt_question(q, quiz_id)]
         lines.extend(
             "⚪ " + html.code(html.unparse(text)) for text in option_texts

@@ -28,7 +28,7 @@ from ...bot.types import (
     ResultData,
     StopUploadingData,
 )
-from ...database.utils.quiz_results_ import find_user_results, get_result
+from ...database.utils.quiz_results import find_user_results, get_result
 from ...database.utils.quizzes import (
     delete_quiz,
     find_quiz,
@@ -282,10 +282,7 @@ async def handle_downoad_quiz(
         await bot.send_document(chat.id, buffer_file)
 
 
-@router.message(
-    Command(commands=["download_all"]),
-    F.chat.as_("chat"),
-)
+@router.message(Command(commands=["download_all"]), F.chat.as_("chat"))
 async def download_all_command(
     _: Message,
     chat: Chat,
@@ -300,6 +297,7 @@ async def download_all_command(
             filename=quiz.source,
         )
         await bot.send_document(chat.id, buffer_file)
+        await asyncio.sleep(0.2)
 
 
 # RESULTS
