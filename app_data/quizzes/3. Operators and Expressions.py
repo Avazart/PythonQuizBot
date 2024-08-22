@@ -87,8 +87,7 @@ print(-18 // 4)
 
 
 # ! <strong>Explanation</strong>: In the case of <strong>floor
-# / division</strong> operator (<code class=" prettyprinted"><span
-# / class="com">//</span></code>), when the result is negative, the result is
+# / division</strong> operator (<code>//</code>), when the result is negative, the result is
 # / rounded down to the next smallest (big negative) integer.
 
 
@@ -169,9 +168,8 @@ print(10 - 4 * 2)
 # - +
 
 
-# * <strong>Hint</strong>: <a
-# / href="https://pynative.com/python-operators/#h-python-operators-precedence">Python
-# / operators precedence</a>
+# * <strong>Hint</strong>: 
+# / <a href="https://pynative.com/python-operators/#h-python-operators-precedence">Python operators precedence</a>
 
 
 # > https://pynative.com/python-operators-and-expression-quiz/
@@ -180,7 +178,7 @@ print(10 - 4 * 2)
 # # 9==========================================================================
 
 
-# ? Bitwise shift operators (<<, >>) has higher precedence than Bitwise And(&)
+# ? Bitwise shift operators (&lt;&lt;, &gt;&gt;) has higher precedence than Bitwise And(&amp;)
 # / operator
 
 
@@ -311,9 +309,9 @@ print(a, b)
 
 
 # ! <strong>Explanation</strong>: Because both <code>b</code> and
-# / <code>a</code> refer to the same object, when we use addition assignment
-# / <code>+=</code> on <code>b</code>, it changes both <code>a</code> and
-# / <code>b</code>
+# ! <code>a</code> refer to the same object, when we use addition assignment
+# ! <code>+=</code> on <code>b</code>, it changes both <code>a</code> and
+# ! <code>b</code>
 
 
 # > https://pynative.com/python-operators-and-expression-quiz/

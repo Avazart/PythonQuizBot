@@ -245,13 +245,10 @@ print(tpl)
 # - (800, 100, 200, 300, 400, 500)
 
 
-# ! <strong>Explanation</strong>: <span data-preserver-spaces="true">A tuple
-# / is ;</span><strong><span
-# / data-preserver-spaces="true">immutable. ;</span></strong><span
-# / data-preserver-spaces="true">Once a tuple is created, you cannot change
+# ! <strong>Explanation</strong>: A tuple
+# / is ; Once a tuple is created, you cannot change
 # / its values. If you try to change its value, you will receive a ;
-# / </span><code>TypeError: 'tuple' object does not support item
-# / assignment</code>
+# / <code>TypeError: 'tuple' object does not support item assignment</code>
 
 
 # > https://pynative.com/python-tuple-quiz/

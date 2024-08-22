@@ -74,10 +74,9 @@ print(s[1:4], s[:5], s[4:], s[0:-1], s[:-1])
 # + Yna PYnat tive PYnativ PYnativ
 
 
-# ! <strong>Explanation</strong>: <span data-preserver-spaces="true">We can
-# / use a slice operator <code>[]</code> to get a substring.</span>
-# / Syntax<span data-preserver-spaces="true">: <code>s[start :
-# / end]</code></span>
+# ! <strong>Explanation</strong>: We can
+# / use a slice operator <code>[]</code> to get a substring.
+# / Syntax: <code>s[start:end]</code>
 
 
 # > https://pynative.com/python-string-quiz/
@@ -300,4 +299,3 @@ print(s[:6] + " PYnative")
 
 
 # > https://pynative.com/python-string-quiz/
-

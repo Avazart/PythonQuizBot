@@ -30,6 +30,11 @@ logger = logging.getLogger(__name__)
 
 
 def fmt_question(question: Question, quiz_id: int | None = None):
+    """
+    n.n question_text
+    code
+    hint
+    """
     if quiz_id is None:
         lines = [f"{html.bold(str(question.n))}. {question.text}"]
     else:
@@ -210,6 +215,11 @@ async def check_option(
 
 
 def make_answer_text(q: Question, answer: Container[int]) -> tuple[bool, str]:
+    """
+    question text
+    ✅ options
+    explanation
+    """
     lines = [fmt_question(q)]
     options = {o.id: o for o in sorted(q.options, key=lambda o: o.n)}
     correct = True
