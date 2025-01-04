@@ -13,7 +13,7 @@
 # # 2==========================================================================
 
 
-# ? How methods must necessarily have a dictionary key?
+# ? What methods should a dict key have?
 
 
 # - __gt__
