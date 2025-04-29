@@ -1,6 +1,35 @@
-[build-system]
-requires = ["python>=3.11"]
+[project]
+name = "quizbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiogram~=3.3.0",
+    "aiosqlite~=0.17.0",
+    "alembic~=1.10.2",
+    "cachetools==5.3.1",
+    "colorama~=0.4.4",
+    "colorlog~=6.7.0",
+    "pydantic-settings~=2.2.0",
+    "python-dotenv~=1.0.0",
+    "sqlalchemy~=2.0.23",
+]
 
+[dependency-groups]
+dev = [
+    "mypy==1.6.1",
+    "pre-commit==3.5.0",
+    "pytest==7.4.0",
+    "pytest-asyncio==0.21.1",
+    "ruff>=0.11.7",
+    "types-aiofiles==23.2.0.0",
+    "types-cachetools==5.3.0.6",
+    "types-colorama==0.4.15.12",
+    "types-pyopenssl==23.2.0.2",
+    "types-requests==2.31.0.10",
+    "typing-extensions==4.7.1",
+]
 
 [tool.ruff]
 exclude = [

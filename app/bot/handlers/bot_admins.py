@@ -375,9 +375,7 @@ async def handle_user(
     ):
         for i, result in enumerate(results[:RESULT_COUNT]):
             text = (
-                f"#{result.quiz_id} "
-                f"{result.quiz.name} "
-                f"[{result.created_at}]"
+                f"#{result.quiz_id} {result.quiz.name} [{result.created_at}]"
             )
             if (i == RESULT_COUNT - 1) and (len(results) > RESULT_COUNT):
                 more_offset = offset + RESULT_COUNT

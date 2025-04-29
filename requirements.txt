@@ -1,9 +1,0 @@
-aiogram~=3.3.0
-SQLAlchemy~=2.0.23
-alembic~=1.10.2
-aiosqlite~=0.17.0
-pydantic_settings~=2.2.0
-colorama~=0.4.4
-colorlog~=6.7.0
-python-dotenv~=1.0.0
-cachetools==5.3.1
