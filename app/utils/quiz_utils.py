@@ -98,7 +98,7 @@ async def show_results(
             user = user_opts[0].user.as_aiogram_user()
             opt_ids = {a.option_id for a in user_opts}
             ch = "👍" if opt_ids == correct else "👎"
-            lines.append(f"{user.mention_html()} {ch}")
+            lines.append(f"{user.full_name} {ch}")
         if edit:
             lines.append(f"\nLast update: {datetime.now():%H:%M:%S}")
 

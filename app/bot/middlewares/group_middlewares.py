@@ -45,3 +45,6 @@ class GroupMiddleware(BaseMiddleware):
             ):
                 context.activity_time_cache[chat.id] = datetime.now()
                 return await handler(event, data)
+            else:
+                if isinstance(event, CallbackQuery):
+                    await event.answer("Please wait 1 minute and try again!")
