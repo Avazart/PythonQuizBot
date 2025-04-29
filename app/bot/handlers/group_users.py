@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...database.utils.quizzes import get_quizzes_info
 from ...utils.quiz_utils import show_question_in_group, show_results
 from ..middlewares.group_middlewares import GroupMiddleware
-from ..types import CloseData, ShowResultsData
+from ..types import BotContext, CloseData, ShowResultsData
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -75,12 +75,14 @@ async def results_command(
     reply_to_message: Message,
     chat: Chat,
     session: AsyncSession,
+    context: BotContext,
 ):
     await show_results(
         chat.id,
         reply_to_message.message_id,
         False,
         reply_to_message,
+        context.result_messages,
         session,
     )
 
@@ -96,12 +98,14 @@ async def show_or_update_results(
     chat: Chat,
     callback_data: ShowResultsData,
     session: AsyncSession,
+    context: BotContext,
 ):
     await show_results(
         chat.id,
         callback_data.message_id,
         callback_data.edit,
         message,
+        context.result_messages,
         session,
     )
 

@@ -19,6 +19,9 @@ class BotContext:
     activity_time_cache: LRUCache = field(
         default_factory=lambda: LRUCache(maxsize=CACHE_SIZE),
     )
+    result_messages: LRUCache = field(
+        default_factory=lambda: LRUCache(maxsize=CACHE_SIZE),
+    )
 
 
 class Form(StatesGroup):

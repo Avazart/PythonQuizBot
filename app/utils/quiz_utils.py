@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import itertools
 import logging
 import re
@@ -8,9 +9,11 @@ from pathlib import Path
 
 from aiogram import Bot, html
 from aiogram.enums import ParseMode, PollType
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import LinkPreviewOptions, Message
 from aiogram.utils.deep_linking import create_start_link
+from cachetools import LRUCache
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..bot.keyboards.keyboard import (
@@ -80,8 +83,13 @@ async def show_results(
     message_id: int,
     edit: bool,
     message: Message,
+    result_messages: LRUCache,
     session: AsyncSession,
 ):
+    if not edit and (result := result_messages.pop(message_id, None)):
+        with contextlib.suppress(TelegramBadRequest):
+            await message.bot.delete_message(result[0], result[1])
+
     if answers := await find_single_answers(
         chat_id,
         message_id,
@@ -103,7 +111,7 @@ async def show_results(
             lines.append(f"\nLast update: {datetime.now():%H:%M:%S}")
 
         method = "edit_text" if edit else "reply"
-        await getattr(message, method)(
+        result_message = await getattr(message, method)(
             text="\n".join(lines),
             parse_mode=ParseMode.HTML,
             reply_markup=update_results_keyboard(message_id),
@@ -114,10 +122,13 @@ async def show_results(
         if edit:
             lines.extend(["", f"Last update: {datetime.now():%H:%M:%S}"])
 
-        await getattr(message, method)(
+        result_message = await getattr(message, method)(
             text="\n".join(lines),
             reply_markup=update_results_keyboard(message_id),
         )
+
+    if not edit:
+        result_messages[message_id] = chat_id, result_message.message_id
 
 
 def make_quiz_info_text(quiz: Quiz, count: int) -> str:
