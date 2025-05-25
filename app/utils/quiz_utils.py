@@ -4,7 +4,7 @@ import itertools
 import logging
 import re
 from collections.abc import Container
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from aiogram import Bot, html
@@ -13,6 +13,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import LinkPreviewOptions, Message
 from aiogram.utils.deep_linking import create_start_link
+from apscheduler.triggers.date import DateTrigger
 from cachetools import LRUCache
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,11 +22,12 @@ from ..bot.keyboards.keyboard import (
     question_keyboard,
     update_results_keyboard,
 )
-from ..bot.types import OptionData
+from ..bot.types import BotContext, OptionData
 from ..database.models import Quiz, QuizResult
 from ..database.utils.answers import find_single_answers
 from ..database.utils.questions import find_question, get_options
 from ..database.utils.quizzes import find_quiz, get_quiz_info
+from ..jobs import delete_results_message_job
 from ..quiz_parser import LineType, Question, get_last_modified
 from .aux_utils import text_wrap
 
@@ -85,6 +87,7 @@ async def show_results(
     message: Message,
     result_messages: LRUCache,
     session: AsyncSession,
+    context: BotContext,
 ):
     if not edit and (result := result_messages.pop(message_id, None)):
         with contextlib.suppress(TelegramBadRequest):
@@ -129,6 +132,21 @@ async def show_results(
 
     if not edit:
         result_messages[message_id] = chat_id, result_message.message_id
+
+        now = datetime.now(context.settings.app_tz)
+        trigger = DateTrigger(
+            now + timedelta(minutes=5), timezone=context.settings.app_tz
+        )
+        context.scheduler.add_job(
+            delete_results_message_job,
+            args=(
+                chat_id,
+                result_message.message_id,
+                result_message.bot,
+            ),
+            trigger=trigger,
+            misfire_grace_time=60,
+        )
 
 
 def make_quiz_info_text(quiz: Quiz, count: int) -> str:

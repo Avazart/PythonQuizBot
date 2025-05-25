@@ -1,9 +1,10 @@
 import enum
 from pathlib import Path
-from typing import Final
+from typing import Annotated, Final
+from zoneinfo import ZoneInfo
 
 from aiogram.types import BotCommand
-from pydantic import SecretStr
+from pydantic import BeforeValidator, SecretStr
 from pydantic_settings import BaseSettings
 
 PRIVATE_COMMANDS: Final[list] = [
@@ -71,6 +72,9 @@ class Icon(enum.StrEnum):
     DOWN = "⬇"
 
 
+TimeZone = Annotated[ZoneInfo, BeforeValidator(ZoneInfo)]
+
+
 class Settings(BaseSettings):
     bot_token: SecretStr
     notion_token: SecretStr
@@ -82,3 +86,5 @@ class Settings(BaseSettings):
 
     notion_parent_pade_id: str
     quiz_folder: Path = Path("app_data/quizzes/")
+
+    app_tz: TimeZone

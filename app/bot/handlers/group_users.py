@@ -84,6 +84,7 @@ async def results_command(
         reply_to_message,
         context.result_messages,
         session,
+        context,
     )
 
 
@@ -107,6 +108,7 @@ async def show_or_update_results(
         message,
         context.result_messages,
         session,
+        context,
     )
 
 

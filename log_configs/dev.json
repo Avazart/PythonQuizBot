@@ -1,6 +1,6 @@
 {
     "version": 1,
-	"disable_existing_loggers": true,
+	"disable_existing_loggers":  false,
     
     "formatters": 
 	{
@@ -55,6 +55,12 @@
         },
 
         "aiogram":
+        {
+          "handlers": [ "ConsoleHandler" ],
+          "level": "DEBUG"
+        },
+
+        "apscheduler":
         {
           "handlers": [ "ConsoleHandler" ],
           "level": "DEBUG"

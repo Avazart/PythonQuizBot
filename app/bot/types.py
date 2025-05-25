@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.state import State, StatesGroup
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from cachetools import LRUCache
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
@@ -13,6 +14,8 @@ from ..settings import CACHE_SIZE, Settings
 class BotContext:
     settings: Settings
     session_maker: async_sessionmaker
+    scheduler: AsyncIOScheduler
+
     users_cache: LRUCache = field(
         default_factory=lambda: LRUCache(maxsize=CACHE_SIZE),
     )

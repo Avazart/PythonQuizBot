@@ -12,6 +12,7 @@ from aiogram.types import (
     BotCommandScopeAllGroupChats,
     BotCommandScopeAllPrivateChats,
 )
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -110,7 +111,10 @@ async def main():
         scene_registry = SceneRegistry(dp)
         scene_registry.add(QuizScene)
 
-        context = BotContext(settings, session_maker)
+        scheduler = AsyncIOScheduler(timezone=settings.app_tz)
+        scheduler.start()
+
+        context = BotContext(settings, session_maker, scheduler)
         await dp.start_polling(bot, context=context)
 
 
