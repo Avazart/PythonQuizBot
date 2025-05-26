@@ -5,14 +5,14 @@ repos:
     
     - id: ruff_fix
       name: ruff_fix
-      entry: ruff
-      args: ["check", ".", "--fix"]
+      entry: uv
+      args: ["run", "ruff","check", ".", "--fix"]
       language: system
       types: [python]
 
     - id: ruff_format
       name: ruff_format
-      entry: ruff
-      args: ["format", "."]
+      entry: run
+      args: ["run", "ruff", "format", "."]
       language: system
       types: [python]

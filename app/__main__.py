@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 import logging
 import sys
+from asyncio import CancelledError
 from pathlib import Path
 
 import colorama
@@ -13,20 +14,26 @@ from aiogram.types import (
     BotCommandScopeAllPrivateChats,
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm.exc import LoaderStrategyException
 
-from .bot.dumpable_memory_storage import DumpableMemoryStorage
-from .bot.filters.filers import BotAdminFilter
-from .bot.handlers import bot_admins, group_users, users_in_private
-from .bot.middlewares.database_middlewares import DatabaseMiddleware
-from .bot.pages import PageId, PageItemData
-from .bot.scenes.quiz_scene import QuizScene
-from .bot.types import BotContext
-from .database.base import Base
-from .database.utils.users import get_user_by_id
+from .bot import (
+    BotAdminFilter,
+    BotContext,
+    DatabaseMiddleware,
+    DumpableMemoryStorage,
+    PageId,
+    PageItemData,
+    QuizScene,
+    bot_admins,
+    group_users,
+    users_in_private,
+)
+from .database import Base, get_user_by_id
+from .jobs.post_quiz import post_quiz_job
 from .settings import GROUP_COMMANDS, PRIVATE_COMMANDS, Settings
 from .utils.logging_utils import (
     decorate_router_handlers,
@@ -64,8 +71,8 @@ async def on_startup(bot: Bot):
 async def main():
     colorama.init()
     load_dotenv(dotenv_path=sys.argv[1] if len(sys.argv) == 2 else None)
-    settings = Settings()
-    init_logging(settings.log_dir, settings.log_config)
+    settings = Settings(_env_nested_delimiter="__")
+    init_logging(settings.log.dir, settings.log.config)
 
     logger.info("Create database engine ...")
     engine = create_async_engine(
@@ -76,13 +83,12 @@ async def main():
     await create_db_if_not_exists(session_maker, engine)
 
     logger.info("Create bot instance ...")
-    bot = Bot(token=settings.bot_token.get_secret_value())
+    bot = Bot(token=settings.bot.token.get_secret_value())
     with DumpableMemoryStorage("app_data/storage.pickle") as storage:
         dp = Dispatcher(
             storage=storage,
             events_isolation=SimpleEventIsolation(),
         )
-
         database_middleware = DatabaseMiddleware()
         database_middleware.setup(dp)
 
@@ -112,9 +118,19 @@ async def main():
         scene_registry.add(QuizScene)
 
         scheduler = AsyncIOScheduler(timezone=settings.app_tz)
+        if settings.cron_schedule and settings.group_ids:
+            trigger = CronTrigger.from_crontab(
+                settings.cron_schedule,
+                timezone=settings.app_tz,
+            )
+            scheduler.add_job(
+                post_quiz_job,
+                args=(settings.group_ids, storage, session_maker, bot),
+                trigger=trigger,
+            )
         scheduler.start()
 
-        context = BotContext(settings, session_maker, scheduler)
+        context = BotContext(settings, session_maker, scheduler, storage)
         await dp.start_polling(bot, context=context)
 
 
@@ -122,5 +138,5 @@ if __name__ == "__main__":
     if sys.platform.startswith("win"):
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-    with contextlib.suppress(KeyboardInterrupt):
+    with contextlib.suppress(KeyboardInterrupt, CancelledError):
         asyncio.run(main())

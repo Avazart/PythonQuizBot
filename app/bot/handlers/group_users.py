@@ -33,9 +33,10 @@ async def hide_command(message: Message):
     await message.answer("-", reply_markup=ReplyKeyboardRemove())
 
 
-@router.message(Command(commands=["quiz"]))
+@router.message(Command(commands=["quiz"]), F.chat.as_("chat"))
 async def quiz_command(
     message: Message,
+    chat: Chat,
     command: CommandObject,
     session: AsyncSession,
     bot: Bot,
@@ -62,7 +63,7 @@ async def quiz_command(
         q_n = random.randint(1, count)
 
     logger.debug(f"{quiz.id=} {q_n=}")
-    await show_question_in_group(quiz.id, q_n, session, message, bot)
+    await show_question_in_group(chat.id, quiz.id, q_n, session, bot)
 
 
 @router.message(

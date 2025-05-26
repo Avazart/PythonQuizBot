@@ -77,7 +77,7 @@
 # # 4==========================================================================
 
 
-# ? What’s the purpose of the regular expression <.*?> in the context of web
+# ? What’s the purpose of the regular expression &lt;.*?&gt; in the context of web
 # / scraping?
 
 

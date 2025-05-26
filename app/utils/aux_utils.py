@@ -2,6 +2,7 @@ import asyncio
 import math
 import re
 from collections.abc import Iterable, Iterator, Sequence
+from html.parser import HTMLParser
 from itertools import islice
 
 from aiogram.exceptions import TelegramRetryAfter
@@ -106,3 +107,21 @@ def text_wrap(text: str, width: int, sep: str = " ") -> list[str]:
     if line_parts:
         lines.append(sep.join(line_parts))
     return lines
+
+
+class HTMLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.result = []
+
+    def handle_data(self, data):
+        self.result.append(data)
+
+    def get_data(self):
+        return "".join(self.result)
+
+
+def strip_tags(html: str) -> str:
+    stripper = HTMLStripper()
+    stripper.feed(html)
+    return stripper.get_data()

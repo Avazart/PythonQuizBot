@@ -35,6 +35,7 @@ from ...database.utils.quizzes import (
     get_quiz_info,
     get_quizzes,
 )
+from ...jobs.post_quiz import post_quiz_job
 from ...quiz_parser import from_file, from_text
 from ...settings import RESULT_COUNT
 from ...utils.aux_utils import send_parts
@@ -394,3 +395,18 @@ async def handle_user(
 @router.callback_query(CloseData.filter(), F.message.as_("message"))
 async def handle_close(_: CallbackQuery, message: Message):
     await message.delete()
+
+
+@router.message(Command(commands=["test_quizzes"]))
+async def test_quizzes_command(
+    _message: Message,
+    bot: Bot,
+    context: BotContext,
+):
+    for _ in range(100):
+        await post_quiz_job(
+            context.settings.group_ids,
+            context.storage,
+            context.session_maker,
+            bot,
+        )

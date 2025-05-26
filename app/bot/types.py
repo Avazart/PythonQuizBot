@@ -8,6 +8,7 @@ from cachetools import LRUCache
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from ..settings import CACHE_SIZE, Settings
+from .dumpable_memory_storage import DumpableMemoryStorage
 
 
 @dataclass
@@ -15,6 +16,7 @@ class BotContext:
     settings: Settings
     session_maker: async_sessionmaker
     scheduler: AsyncIOScheduler
+    storage: DumpableMemoryStorage
 
     users_cache: LRUCache = field(
         default_factory=lambda: LRUCache(maxsize=CACHE_SIZE),

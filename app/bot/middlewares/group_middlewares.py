@@ -33,7 +33,7 @@ class GroupMiddleware(BaseMiddleware):
         if user:
             context: BotContext = data["context"]
             if (
-                user.id in context.settings.bot_admin_ids
+                user.id in context.settings.bot.admin_ids
                 or user.id == GROUP_ANONYMOUS_BOT_ID
             ):
                 return await handler(event, data)

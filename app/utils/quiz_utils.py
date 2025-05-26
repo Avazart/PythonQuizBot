@@ -27,9 +27,9 @@ from ..database.models import Quiz, QuizResult
 from ..database.utils.answers import find_single_answers
 from ..database.utils.questions import find_question, get_options
 from ..database.utils.quizzes import find_quiz, get_quiz_info
-from ..jobs import delete_results_message_job
+from ..jobs.delete_results_message import delete_results_message_job
 from ..quiz_parser import LineType, Question, get_last_modified
-from .aux_utils import text_wrap
+from .aux_utils import strip_tags, text_wrap
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +61,61 @@ def fmt_question(question: Question, quiz_id: int | None = None):
             )
         )
     return "\n".join(lines)
+
+
+async def show_question_in_group(
+    chat_id: int,
+    quiz_id: int,
+    q_n: int,
+    session: AsyncSession,
+    bot: Bot,
+):
+    if (q := await find_question(quiz_id, q_n, session)) is None:
+        await bot.send_message(chat_id, "Question not found!")
+        return
+
+    correct_options = {opt.n for opt in q.options if opt.correct}
+    multiple_answers = len(correct_options) != 1
+    option_texts = [opt.text for opt in sorted(q.options, key=lambda o: o.n)]
+    too_long_for_pool = (len(q.text) >= 300 - 10) or any(
+        len(opt) >= 100 - 3 for opt in option_texts
+    )
+    if q.code or multiple_answers or too_long_for_pool:
+        lines = [fmt_question(q, quiz_id)]
+        lines.extend(
+            "⚪ " + html.code(html.unparse(text)) for text in option_texts
+        )
+        m = await bot.send_message(
+            chat_id,
+            "\n".join(lines),
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
+            parse_mode=ParseMode.HTML,
+        )
+        params = (quiz_id, q.n, chat_id, m.message_id)
+        link = await create_start_link(bot, payload="_".join(map(str, params)))
+        markup = goto_answer_keyboard(link, m.message_id)
+        await asyncio.sleep(0.2)
+        await m.edit_reply_markup(reply_markup=markup)
+    else:
+        correct_option_id = next(iter(correct_options)) - 1
+        question_text = html.unparse(
+            f"{quiz_id}.{q.n}. {strip_tags(q.text)}"[:300]
+        )
+        explanation = q.explanation and html.unparse(
+            strip_tags(q.explanation)[:200]
+        )
+        await bot.send_poll(
+            chat_id,
+            question=question_text,
+            options=option_texts,
+            is_anonymous=False,
+            type=PollType.QUIZ,
+            allows_multiple_answers=multiple_answers,
+            correct_option_id=correct_option_id,
+            disable_notification=True,
+            explanation=explanation,
+            explanation_parse_mode=ParseMode.HTML,
+        )
 
 
 async def show_question(
@@ -132,7 +187,6 @@ async def show_results(
 
     if not edit:
         result_messages[message_id] = chat_id, result_message.message_id
-
         now = datetime.now(context.settings.app_tz)
         trigger = DateTrigger(
             now + timedelta(minutes=5), timezone=context.settings.app_tz
@@ -300,53 +354,6 @@ def fmt_result(result: QuizResult) -> list[str]:
         "</b>\n",
     )
     return parts
-
-
-async def show_question_in_group(
-    quiz_id: int,
-    q_n: int,
-    session: AsyncSession,
-    message: Message,
-    bot: Bot,
-):
-    if (q := await find_question(quiz_id, q_n, session)) is None:
-        await message.answer("Question not found!")
-        return
-
-    correct_options = {opt.n for opt in q.options if opt.correct}
-    multiple_answers = len(correct_options) != 1
-    option_texts = [opt.text for opt in sorted(q.options, key=lambda o: o.n)]
-    too_long_for_pool = (len(q.text) >= 300 - 10) or any(
-        len(opt) >= 100 - 3 for opt in option_texts
-    )
-    if q.code or multiple_answers or too_long_for_pool:
-        lines = [fmt_question(q, quiz_id)]
-        lines.extend(
-            "⚪ " + html.code(html.unparse(text)) for text in option_texts
-        )
-        m = await message.answer(
-            "\n".join(lines),
-            link_preview_options=LinkPreviewOptions(is_disabled=True),
-            parse_mode=ParseMode.HTML,
-        )
-        params = (quiz_id, q.n, message.chat.id, m.message_id)
-        link = await create_start_link(bot, payload="_".join(map(str, params)))
-        markup = goto_answer_keyboard(link, m.message_id)
-        await asyncio.sleep(0.2)
-        await m.edit_reply_markup(reply_markup=markup)
-    else:
-        correct_option_id = next(iter(correct_options)) - 1
-        await message.answer_poll(
-            question=f"{quiz_id}.{q.n}. {q.text}",
-            options=option_texts,
-            is_anonymous=False,
-            type=PollType.QUIZ,
-            allows_multiple_answers=multiple_answers,
-            correct_option_id=correct_option_id,
-            disable_notification=True,
-            explanation=q.explanation,
-            explanation_parse_mode=ParseMode.HTML,
-        )
 
 
 async def scan_files(folder: Path, session: AsyncSession) -> dict[str, tuple]:

@@ -75,16 +75,23 @@ class Icon(enum.StrEnum):
 TimeZone = Annotated[ZoneInfo, BeforeValidator(ZoneInfo)]
 
 
+class BotSettings(BaseSettings):
+    token: SecretStr
+    admin_ids: frozenset[int]
+
+
+class LogSettings(BaseSettings):
+    dir: Path
+    config: Path
+
+
 class Settings(BaseSettings):
-    bot_token: SecretStr
-    notion_token: SecretStr
-    bot_admin_ids: frozenset[int]
+    bot: BotSettings
+    log: LogSettings
     database_url: SecretStr
-
-    log_dir: Path
-    log_config: Path
-
-    notion_parent_pade_id: str
     quiz_folder: Path = Path("app_data/quizzes/")
+
+    group_ids: frozenset[int] = frozenset()
+    cron_schedule: str | None = None
 
     app_tz: TimeZone

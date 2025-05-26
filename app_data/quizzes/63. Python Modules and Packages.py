@@ -25,7 +25,7 @@
 # # 2==========================================================================
 
 
-# ? What does from <module_name> import * do?
+# ? What does from &lt;module_name&gt; import * do?
 
 
 # + It imports only the public objects from a module.
