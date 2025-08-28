@@ -115,6 +115,7 @@ print(math.ceil(252.4), math.floor(252.4))
 
 # ? What is the output of the following number comparison function call
 
+print((1.1 + 2.2) == 3.3)
 
 # - True
 # + False
